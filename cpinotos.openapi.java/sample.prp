@@ -1,0 +1,30 @@
+#Hostname via which the traffic is severed with Akamai.
+host = <INSERT>
+
+#Akamai Netstorage Upload Account User.
+netstorage_client = <INSERT>
+#Akamai Netstorage Upload Account User API Key. Needed to be able to interact with the Netstorage API.
+netstorage_key = <INSERT>
+#Akamai Netstorage API Host. To be used when interacting with the Netstorage API.
+netstorage_host = <INSERT>
+
+#Akamai API User which is only used to invalidate Content.
+purge_client_secret = <INSERT> 
+purge_host = <INSERT>
+purge_access_token = <INSERT>
+purge_client_token = <INSERT>
+
+
+#Akamai API User which is used with several APIs
+api_client_secret = <INSERT>
+api_host = <INSERT>
+api_access_token = <INSERT>
+api_client_token = <INSERT>
+
+#Akamai API Endpoints:
+purge_invalidate_cpcode_endpoint = /ccu/v3/invalidate/cpcode/production
+purge_invalidate_tag_endpoint = /ccu/v3/invalidate/tag/production
+purge_invalidate_endpoint = /ccu/v3/invalidate/url/staging
+api_papi_search_endpoint = /papi/v1/search/find-by-value
+api_papi_get_endpoint = /papi/v1/properties/{propertyId}?contractId={contractId}&groupId={groupId}
+api_papi_get_ruletree_endpoint = /papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules?contractId={contractId}&groupId={groupId}&validateRules={validateRules}
