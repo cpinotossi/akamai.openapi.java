@@ -19,7 +19,7 @@ public class OpenCLITestDeleteFolder {
 		String path = testFolderPath;
 		boolean result = false;
 		OpenAPI openAPI = new OpenAPI(configPath, isDebug);
-		result = openAPI.doNetstorageDelete(path, false);
+		result = openAPI.doNetstorageDelete(path);
 		if (result) {
 			System.out.println("deleteFolder(" + path + ") was successfully");
 		}

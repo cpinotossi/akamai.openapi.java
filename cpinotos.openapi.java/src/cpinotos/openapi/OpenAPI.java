@@ -139,8 +139,8 @@ public class OpenAPI {
 		try {
 			isCreated = this.getNetstorage().mkdir(path);
 		} catch (NetStorageException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -150,52 +150,13 @@ public class OpenAPI {
 
 	public boolean doNetstorageDelete(String path) {
 		boolean isDeleted = false;		
-		String responseString, netStorageStatResultJson;
-		//verifiy if this is a file.
-		try {
-			InputStream responseStream = this.getNetstorage().stat(path);
-			responseString = inputStreamReader(responseStream);
-			netStorageStatResultJson = xml2json(responseString);
-			netStorageStatResultJson = netStorageStatResultJson.replaceAll("[\\t\\n\\r\\s]","");
-			netStorageStatResultJson = netStorageStatResultJson.replaceFirst("\"file\":\\{","\"file\":\\[\\{");
-			netStorageStatResultJson = netStorageStatResultJson.replaceFirst("\\},\"directory\":","\\}\\],\"directory\":");			
-			Gson gson = new Gson();
-			NetStorageDirResult netStorageStatResult = gson.fromJson(netStorageStatResultJson, NetStorageDirResult.class);
-			if(netStorageStatResult.getStat().getFile().get(0).getType().equals("dir")){
-				isDeleted = this.getNetstorage().rmdir(path);
-			}else{
-				isDeleted = this.getNetstorage().delete(path);
-			}
-		} catch (NetStorageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return isDeleted;
-	}
-	
-	public boolean doNetstorageDeleteRecursive(String path) {
-		boolean isDeleted = false;		
 		try {
 			isDeleted = this.getNetstorage().quickDelete(path);
 		} catch (NetStorageException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		return isDeleted;
-	}
-	
-	public boolean doNetstorageDelete(String path, boolean isRecursive) {
-		boolean isDeleted = false;
-		if(isRecursive){
-			isDeleted = doNetstorageDeleteRecursive(path);	
-		}else{
-			isDeleted = doNetstorageDelete(path);	
 		}
 		return isDeleted;
 	}

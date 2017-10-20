@@ -175,17 +175,11 @@ public class OpenCLI {
 			break; // optional
 		case "delete":
 			// delete
-			if(cmdDelete.recursive){
-				openAPI.logger.info("settings.path:" + cmdDelete.out);
-				boolean responseDelete = openAPI.doNetstorageDelete(cmdDelete.out, cmdDelete.recursive);
-				openAPI.logger.info("ns.delete(" + cmdDelete.out + "): " + responseDelete);
-				openAPI.logger.info("done");	
-			}else{
 				openAPI.logger.info("settings.path:" + cmdDelete.out);
 				boolean responseDelete = openAPI.doNetstorageDelete(cmdDelete.out);
 				openAPI.logger.info("ns.delete(" + cmdDelete.out + "): " + responseDelete);
-				openAPI.logger.info("done");			
-			}
+				openAPI.logger.info("done");	
+
 			break; // optional			
 		default: // default
 			openAPI.logger.info("please use a command:");

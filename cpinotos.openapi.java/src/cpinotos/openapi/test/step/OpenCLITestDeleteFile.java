@@ -20,7 +20,7 @@ public class OpenCLITestDeleteFile {
 		String path = testFilePath;
 		boolean result = false;
 		OpenAPI openAPI = new OpenAPI(configPath, isDebug);
-		result = openAPI.doNetstorageDelete(path, false);
+		result = openAPI.doNetstorageDelete(path);
 		if (result) {
 			System.out.println("deleteFile(" + path + ") was successfully");
 		}

@@ -139,7 +139,7 @@ public class OpenAPITest {
 		String path = testFilePath;
 		boolean result = false;
 		OpenAPI openCLI = new OpenAPI(configPath, isDebug);
-		result = openCLI.doNetstorageDelete(path, false);
+		result = openCLI.doNetstorageDelete(path);
 		if (result) {
 			System.out.println("deleteFile(" + path + ") was successfully");
 		}
@@ -150,7 +150,7 @@ public class OpenAPITest {
 		String path = testFolderPath;
 		boolean result = false;
 		OpenAPI openCLI = new OpenAPI(configPath, isDebug);
-		result = openCLI.doNetstorageDelete(path, false);
+		result = openCLI.doNetstorageDelete(path);
 		if (result) {
 			System.out.println("deleteFolder(" + path + ") was successfully");
 		}

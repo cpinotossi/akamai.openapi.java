@@ -8,8 +8,6 @@ import com.beust.jcommander.Parameters;
 
 @Parameters(commandDescription = "Delete file or folder from Netstorage")
 public class CommandDelete {
-	@Parameter(names = { "--out", "-o" }, description = "Path to netstorage, including CPCode Folder (.e.g Folder = /599907/my/folder, File = /599907/my/file.txt)", required = true)
+	@Parameter(names = { "--out", "-o" }, description = "Path to netstorage, including CPCode Folder (.e.g Folder = /599907/my/folder, File = /599907/my/file.txt). NOTE: This does delete recursive without warning. So please be carefully.", required = true)
 	public String out;
-	@Parameter(names = { "--recursive", "-r" }, description = "Force recursive delete of all subfolders", required = false)
-	public boolean recursive = false;
 }
