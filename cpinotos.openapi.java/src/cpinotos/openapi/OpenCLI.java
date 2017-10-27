@@ -140,7 +140,9 @@ public class OpenCLI {
 		case "invalidate":
 			// invalidate content based on
 			openAPI.logger.info("Start invalidate:");
-			openAPI.doPurgeInvalidate(openAPI.jsonFileReader(cmdPurge.in));
+			String jsonPurge = "{\"objects\":[\""+cmdPurge.in+"\"]}";
+			//openAPI.doPurgeInvalidate(openAPI.jsonFileReader(jsonPurge));
+			openAPI.doPurgeInvalidate(jsonPurge);
 			openAPI.logger.info("done");
 			break; // optional
 		case "invalidate_cpcode":
