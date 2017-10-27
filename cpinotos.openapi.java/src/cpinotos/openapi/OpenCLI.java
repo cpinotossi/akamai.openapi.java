@@ -1,5 +1,7 @@
 package cpinotos.openapi;
 
+import java.time.Instant;
+
 //import com.akamai.edgeauth.AkamaiTokenConfig;
 //import com.akamai.edgeauth.AkamaiTokenGenerator;
 import com.beust.jcommander.JCommander;
@@ -125,15 +127,16 @@ public class OpenCLI {
 				openAPI.logger.info("edgeURL:step4/7: extract edgeauth secret key from Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
 				String edgeAuthKey = openAPI.getEdgeAuthKeyFromPapiRuleSet(prt);
 				openAPI.logger.info("edgeURL:step5/7: extract edgeauth query name from Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
-				String edgeAuthLocationId = openAPI.getEdgeAuthLocationFromPapiRuleSet(prt);
-				openAPI.logger.info("edgeURL:step6/7: generate edgeauth token");
-				
+				//String edgeAuthLocationId = openAPI.getEdgeAuthLocationFromPapiRuleSet(prt);
+				//Integer startTime = (int) Instant.now().getEpochSecond();
+				Integer startTime = ((cmdEdgeurl.starttime == null) ?  (int) Instant.now().getEpochSecond() : cmdEdgeurl.starttime);
+				openAPI.logger.info("edgeURL:step6/7: generate edgeauth token with startime: "+startTime);
+				String edgeAuthToken;
 				//AkamaiTokenConfig conf = openAPI.GenerateConfig(cmdEdgeurl.in, edgeAuthKey, 3600);
 				//String edgeAuthToken = AkamaiTokenGenerator.generateToken(conf);
-				String edgeAuthToken = openAPI.getEdgeAuthToken(cmdEdgeurl.in, edgeAuthKey, 3600, "token");
-
-				openAPI.logger.info("edgeURL:step7/7: EdgeURL: \nhttps://" + openAPI.getHost() + cmdEdgeurl.in + "?" + edgeAuthLocationId + "="
-						+ edgeAuthToken);
+				edgeAuthToken = openAPI.getEdgeAuthToken(cmdEdgeurl.in, edgeAuthKey, cmdEdgeurl.duration, "token", startTime);
+				openAPI.logger.info("edgeURL:step7/7: EdgeURL: \n" + edgeAuthToken);
+				//openAPI.logger.info("edgeURL:step7/7: EdgeURL: \nhttps://" + openAPI.getHost() + cmdEdgeurl.in + "?" + edgeAuthLocationId + "="+ edgeAuthToken);
 			}
 			openAPI.logger.info("done");
 			break; // optional

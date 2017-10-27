@@ -161,18 +161,19 @@ public class OpenAPI {
 		return isDeleted;
 	}
 
-	public String getEdgeAuthToken(String path, String encrpytionKey, Integer duration, String tokenName){
+	public String getEdgeAuthToken(String path, String encrpytionKey, Integer duration, String tokenName, Integer startTime){
 		String url = null;
 		try {
 			  AuthToken at = new AuthTokenBuilder()
 			      .key(encrpytionKey)
 			      .windowSeconds(duration)
-			      .escapeEarly(true)
+			      .escapeEarly(false)
+			      .startTime(startTime)
 			      .build();
 			  at.setTokenName("token");
 			  String token = at.generateURLToken(path);
 			  //TODO Find a better way to select the protocol
-			  url = String.format("http(s)://%s%s?%s=%s", this.getHost(), path,at.getTokenName(), token);
+			  url = String.format("http://%s%s?%s=%s", this.getHost(), path,at.getTokenName(), token);
 			  // => Link or Request "url" /w Query string
 			} catch (AuthTokenException e) {
 			  e.printStackTrace();
@@ -218,7 +219,7 @@ public class OpenAPI {
 		return edgeauth;
 	}
 
-	public String getEdgeAuthKeyFromPapiRuleSet(String papiRuleSetJson) {
+	public String getEdgeAuthKeyFromPapiRuleSet_(String papiRuleSetJson) {
 		String edgeauthKey = null;
 		String pattern = "^.*key\".:.\"(.*)\",.*failureResponse.*";
 		// String pattern = "^.*key\".:.\"(.*)\",.*";
@@ -231,6 +232,16 @@ public class OpenAPI {
 		}
 		return edgeauthKey;
 
+	}
+	public String getEdgeAuthKeyFromPapiRuleSet(String papiRuleSetJson) {
+		String edgeauthKey = null;
+		String pattern = "<key>(.+?)</key>";
+		Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+		Matcher m = r.matcher(papiRuleSetJson);
+		m.find();
+		edgeauthKey = m.group(1);
+		this.logger.debug("m.group(1):" + m.group(1));
+		return edgeauthKey;
 	}
 
 	public String getEdgeAuthLocationFromPapiRuleSet(String papiRuleSetJson) {
