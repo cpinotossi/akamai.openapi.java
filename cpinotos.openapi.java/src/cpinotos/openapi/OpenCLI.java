@@ -115,6 +115,7 @@ public class OpenCLI {
 			openAPI.logger.info("Start edgeurl:");
 			openAPI.logger.info("edgeURL:step1/7: found Property Configuration for Hostname " + openAPI.getHost());
 			PapiSearchResult psr = openAPI.searchPAPIConfiguration();
+			//TODO Handle exception no config for provided hostname
 			PapiSearchResultItem psri = psr.getVersions().getItems().get(0);
 			openAPI.logger.info("edgeURL:step2/7: found Property Configuration "+ psri.getPropertyName() +"  version "+ psri.getPropertyVersion());
 			String prt = openAPI.getPAPIRuletree(psri.getPropertyId(), psri.getPropertyVersion(), psri.getContractId(),

@@ -1,0 +1,16 @@
+host = ota.edgegate.de
+netstorage_client = otatest1
+netstorage_key = 8t4U9GBPOBm4cvU3EsGw8u3b2BCNr371TAyqqj2c32DsZ3m5Ep
+netstorage_host = ionstandard3-nsu.akamaihd.net
+purge_client_secret = rep46ZeN+GSXb38lyuMPyLYsLXym1vfO3KnKzNT7cKE=
+purge_host = akab-zrboh4xavosy5eyy-y3nrvyngykndmcew.purge.akamaiapis.net
+purge_access_token = akab-2he37qeodnpslw76-isyotdrez2gq5b7n
+purge_client_token = akab-awrwncksdcm7clls-4f7zpsh7mzplq6nb
+purge_invalidate_endpoint = /ccu/v3/invalidate/url/staging
+api_client_secret = TvKGAmRc+8ZdbR6d56xdvfKyY0ZWj2njAI8ccPoBtC8=
+api_host = akab-fm3x7q5gk3zmv7ry-mtidyfbxiisjytzn.luna.akamaiapis.net
+api_access_token = akab-qt5wdeg7rpivsw3o-ga6au45akxer6yux
+api_client_token = akab-h4fqhcewzdetbhpz-kfineolyschudoc3
+api_papi_search_endpoint = /papi/v1/search/find-by-value
+api_papi_get_endpoint = /papi/v1/properties/{propertyId}?contractId={contractId}&groupId={groupId}
+api_papi_get_ruletree_endpoint = /papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules?contractId={contractId}&groupId={groupId}&validateRules={validateRules}

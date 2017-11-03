@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.security.SignatureException;
+import java.time.Instant;
 
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -201,7 +202,8 @@ public class OpenAPITest {
 				//conf = OpenAPI.GenerateConfig(downloadPath, edgeAuthKey, 3600);
 				System.out.println("edgeURL:step6/7: generate edgeauth token");
 				//edgeAuthToken = AkamaiTokenGenerator.generateToken(conf);
-				edgeAuthToken = openAPI.getEdgeAuthToken(downloadPath, edgeAuthKey, 3600, "token");
+				Integer startTime = (int) Instant.now().getEpochSecond();
+				edgeAuthToken = openAPI.getEdgeAuthToken(downloadPath, edgeAuthKey, 3600, "token", startTime);
 				//TODO Need to clean up the URL generation
 				System.out.println("edgeURL:step7/7: EdgeURL: \nhttps://" + openAPI.getHost() + downloadPath + "?" + edgeAuthLocationId + "="
 						+ edgeAuthToken);

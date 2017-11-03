@@ -259,7 +259,8 @@ public class OpenAPI {
 
 	public PapiSearchResult searchPAPIConfiguration(String host) {
 		PapiSearchResult papiSearchResult = null;
-		String searchJSON = "{\"propertyName\":\"" + host + "\"}";
+		//TODO Maybe we should allow different search parameters
+		String searchJSON = "{\"hostname\":\"" + host + "\"}";
 
 		this.logger.debug("searchPAPIConfiguration():" + searchJSON);
 		// Use com.google.api.client.http Helper for HTTP Request
