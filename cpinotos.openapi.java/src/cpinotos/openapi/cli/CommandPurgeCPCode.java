@@ -7,4 +7,6 @@ import com.beust.jcommander.Parameters;
 public class CommandPurgeCPCode {
 	@Parameter(names = { "--in", "-i" }, description = "Enter a single CPCode like 599907", required = true)
 	public String in;
+	@Parameter(names = { "--staging", "-s" }, description = "Purge on Staging instead of Production", required = false)
+	public boolean staging = false;
 }

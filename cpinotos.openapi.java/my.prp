@@ -6,7 +6,7 @@ purge_client_secret = rep46ZeN+GSXb38lyuMPyLYsLXym1vfO3KnKzNT7cKE=
 purge_host = akab-zrboh4xavosy5eyy-y3nrvyngykndmcew.purge.akamaiapis.net
 purge_access_token = akab-2he37qeodnpslw76-isyotdrez2gq5b7n
 purge_client_token = akab-awrwncksdcm7clls-4f7zpsh7mzplq6nb
-purge_invalidate_endpoint = /ccu/v3/invalidate/url/staging
+purge_invalidate_endpoint = /ccu/v3/invalidate/url/production
 api_client_secret = TvKGAmRc+8ZdbR6d56xdvfKyY0ZWj2njAI8ccPoBtC8=
 api_host = akab-fm3x7q5gk3zmv7ry-mtidyfbxiisjytzn.luna.akamaiapis.net
 api_access_token = akab-qt5wdeg7rpivsw3o-ga6au45akxer6yux

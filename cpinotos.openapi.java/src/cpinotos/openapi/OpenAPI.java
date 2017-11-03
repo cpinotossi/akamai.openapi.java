@@ -379,6 +379,10 @@ public class OpenAPI {
 	}
 
 	public boolean doPurgeInvalidate(String purgeJSON) {
+		return doPurgeInvalidate(purgeJSON, false);
+	}
+	
+	public boolean doPurgeInvalidate(String purgeJSON, Boolean isStaging) {
 		boolean purgeExecuted = false;
 		this.logger.debug("purgeJSON:\n" + purgeJSON);
 		// Use com.google.api.client.http Helper for HTTP Request
@@ -386,8 +390,14 @@ public class OpenAPI {
 		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
 		URI uri = null;
 		HttpRequest request = null;
+		//Get the current Purge API Endpoint
+		String purgeInvalidateEndpoint = this.getPurgeInvalidateEndpoint();
+		if(isStaging){
+			//In case isStaging is TRUE modify Purge API Endpoint to purge staging instead of production
+			purgeInvalidateEndpoint = purgeInvalidateEndpoint.replaceAll("production", "staging");
+		}		
 		try {
-			uri = new URI("https", this.getPurgeHost(), this.getPurgeInvalidateEndpoint(), null, null);
+			uri = new URI("https", this.getPurgeHost(), purgeInvalidateEndpoint, null, null);
 			// Ensure to use Content-Type application/json
 			request = requestFactory.buildPostRequest(new GenericUrl(uri),
 					ByteArrayContent.fromString("application/json", purgeJSON));
@@ -421,10 +431,13 @@ public class OpenAPI {
 			e.printStackTrace();
 		}
 		return purgeExecuted;
-
 	}
 
 	public boolean doPurgeInvalidateCPCode(String cpcode) {
+		return doPurgeInvalidateCPCode(cpcode, false);
+	}
+	
+	public boolean doPurgeInvalidateCPCode(String cpcode, Boolean isStaging) {
 		boolean purgeExecuted = false;
 		this.logger.debug("purge CPCode:\n" + cpcode);
 		cpcode = "{\"objects\":["+cpcode+"]}";
@@ -433,8 +446,14 @@ public class OpenAPI {
 		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
 		URI uri = null;
 		HttpRequest request = null;
+		//Get the current Purge API Endpoint
+		String purgeCPCodeInvalidateEndpoint = this.getPurgeInvalidateCPCodeEndpoint();
+		if(isStaging){
+			//In case isStaging is TRUE modify Purge API Endpoint to purge staging instead of production
+			purgeCPCodeInvalidateEndpoint = purgeCPCodeInvalidateEndpoint.replaceAll("production", "staging");
+		}	
 		try {
-			uri = new URI("https", this.getPurgeHost(), this.getPurgeInvalidateCPCodeEndpoint(), null, null);
+			uri = new URI("https", this.getPurgeHost(), purgeCPCodeInvalidateEndpoint, null, null);
 			// Ensure to use Content-Type application/json
 			request = requestFactory.buildPostRequest(new GenericUrl(uri),
 					ByteArrayContent.fromString("application/json", cpcode));

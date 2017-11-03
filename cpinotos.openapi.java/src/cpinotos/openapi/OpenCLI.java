@@ -146,13 +146,13 @@ public class OpenCLI {
 			openAPI.logger.info("Start invalidate:");
 			String jsonPurge = "{\"objects\":[\""+cmdPurge.in+"\"]}";
 			//openAPI.doPurgeInvalidate(openAPI.jsonFileReader(jsonPurge));
-			openAPI.doPurgeInvalidate(jsonPurge);
+			openAPI.doPurgeInvalidate(jsonPurge, cmdPurge.staging);
 			openAPI.logger.info("done");
 			break; // optional
 		case "invalidate_cpcode":
 			// invalidate content based on
 			openAPI.logger.info("Start invalidate by CPCode:");
-			openAPI.doPurgeInvalidateCPCode(cmdPurgeCPCode.in);
+			openAPI.doPurgeInvalidateCPCode(cmdPurgeCPCode.in, cmdPurgeCPCode.staging);
 			openAPI.logger.info("done");
 			break; // optional			
 		case "dir":
