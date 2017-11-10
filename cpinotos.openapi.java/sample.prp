@@ -24,7 +24,7 @@ api_client_token = <INSERT>
 #Akamai API Endpoints:
 purge_invalidate_cpcode_endpoint = /ccu/v3/invalidate/cpcode/production
 purge_invalidate_tag_endpoint = /ccu/v3/invalidate/tag/production
-purge_invalidate_endpoint = /ccu/v3/invalidate/url/staging
+purge_invalidate_endpoint = /ccu/v3/invalidate/url/production
 api_papi_search_endpoint = /papi/v1/search/find-by-value
 api_papi_get_endpoint = /papi/v1/properties/{propertyId}?contractId={contractId}&groupId={groupId}
 api_papi_get_ruletree_endpoint = /papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules?contractId={contractId}&groupId={groupId}&validateRules={validateRules}

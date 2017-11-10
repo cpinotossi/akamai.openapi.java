@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -507,7 +508,7 @@ public class OpenAPI {
 			e1.printStackTrace();
 		} catch (NetStorageException e) {
 			// TODO Auto-generated catch block
-			this.logger.info("doNetstorageDir input is not a directory: " +dir);
+			this.logger.info("doNetstorageDir input is not a directory, please add the cpcode folder: " +dir);
 			e.printStackTrace();
 		}
 		// ns.delete("/1234/example.zip");
@@ -616,28 +617,25 @@ public class OpenAPI {
 
 	public boolean doNetstorageUpload(String path, String file) {
 		boolean uploadResult = false;
-		Integer tryCounter = 0;
-		while(tryCounter<3){
 			try {
-				tryCounter++;
 				InputStream stream = fileReader(file);
 				uploadResult = this.getNetstorage().upload(path, stream);
+			} catch (FileNotFoundException e){
+				// TODO Need to figure out if we need to retry
+				this.logger.info("Local File does not exist");
+				e.printStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				this.logger.info("IOException, need to retry");
 				e.printStackTrace();
-				tryCounter++;
 			} catch (com.akamai.netstorage.NetStorageException e){
 				// TODO Need to figure out if we need to retry
 				this.logger.info("NetStorageException, need to retry");
 				e.printStackTrace();
-				tryCounter++;
-			} finally{
-				if(uploadResult){
-					tryCounter=3;
-				}
+			} catch (Exception e) {
+				this.logger.info("Something did went wrong");
+				e.printStackTrace();
 			}			
-		}
 		this.logger.debug("ns.upload(" + path + "):" + uploadResult);
 		return uploadResult;
 	}
@@ -655,16 +653,11 @@ public class OpenAPI {
 		return content;
 	}
 
-	private InputStream fileReader(String path) {
+	private InputStream fileReader(String path) throws Exception{
 		File file = new File(path);
 		FileInputStream fis = null;
-
-		try {
-			fis = new FileInputStream(file);
-			this.logger.debug("filezise(" + path + "):" + fis.available());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		fis = new FileInputStream(file);
+		this.logger.debug("filezise(" + path + "):" + fis.available());
 		return fis;
 	}
 
