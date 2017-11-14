@@ -56,6 +56,13 @@ import cpinotos.openapi.netstorage.NetStorageDirResultFile;
 import cpinotos.openapi.netstorage.NetStorageDirResultStat;
 import cpinotos.openapi.papi.PapiSearchResult;
 
+/*
+ * TODO use lombok
+ * TODO split into smaller pieces/classes. Single Responsibility Pattern.
+ * TODO Use more interfaces
+ * TODO Zip and Unzip for large Netstorage Uploads
+ * TODO reactive streams, akka framework https://www.youtube.com/watch?v=qaiwalDyayA&t=2132s
+ */
 public class OpenAPI {
 	// Instantiate an instance of slf4j logger
 	public ch.qos.logback.classic.Logger logger = null;
