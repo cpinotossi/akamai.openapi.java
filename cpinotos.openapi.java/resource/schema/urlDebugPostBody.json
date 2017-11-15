@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Represents a URL Debugger request body.",
+    "type": "object",
+    "properties": {
+        "edgeIp": {
+            "description": "The IP address of the edge server associated with this request.",
+            "type": "string"
+        },
+        "headers": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "description": "HTTP headers relevant to this request."
+            }
+        },
+        "url": {
+            "description": "The URL to debug.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "url"
+    ]
+}

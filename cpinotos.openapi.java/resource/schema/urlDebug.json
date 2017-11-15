@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Outer wrapper for a URL debug response object.",
+    "type": "object",
+    "properties": {
+        "urlDebug": {
+            "$ref": "urlDebugInner.json"
+        }
+    },
+    "required": [
+        "urlDebug"
+    ]
+}

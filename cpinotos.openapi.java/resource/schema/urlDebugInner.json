@@ -1,0 +1,69 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Encapsulates various HTTP and DNS information for a URL in a top-level `urlDebug` member.",
+    "type": "object",
+    "properties": {
+        "dnsInformation": {
+            "type": "array",
+            "items": {
+                "description": "A series of DNS resolutions represented as lines of `dig` output.",
+                "type": "string"
+            }
+        },
+        "httpResponse": {
+            "type": "array",
+            "items": {
+                "description": "Collects information about the HTTP response as a series of `name`/`value` pairs. See [TCP Errors](#tcperrors) for details on some of the error codes that appear in this data.",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "The HTTP response key.",
+                        "type": "string"
+                    },
+                    "value": {
+                        "description": "The HTTP response value.",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "value"
+                ]
+            }
+        },
+        "logs": {
+            "type": "array",
+            "items": {
+                "description": "A list of log lines for this error request. Logs follow the same tab-delimited format as in the [LogLines](data.html#loglines) object.",
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "description": "Describes each log line.",
+                        "type": "string"
+                    },
+                    "fields": {
+                        "description": "Log items provided as key/value pairs. This object's membership is indeterminate.",
+                        "$ref": "fields.json"
+                    }
+                },
+                "required": [
+                    "description",
+                    "fields"
+                ]
+            }
+        },
+        "responseHeaders": {
+            "type": "array",
+            "items": {
+                "description": "The HTTP header lines included in the response.",
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "dnsInformation",
+        "httpResponse",
+        "responseHeaders",
+        "logs"
+    ]
+}
