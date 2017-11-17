@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04-schema#",
+  "id": "resource:/descriptors/papi/v0/schemas/SearchPropertyVersionsBySingleValueRequestV0.json#",
+  "type": "object",
+  "description": "A query to search currently active properties. Only one query member is allowed in the POST request.",
+  "javaType": "com.akamai.luna.papi.model.SearchFindByValueRequest",
+  "properties": {
+    "propertyName": {
+      "description": "Search for properties by name.",
+      "type": "string"
+    },
+    "hostname": {
+      "description": "Search for property versions active on a specific hostname.",
+      "type": "string"
+    },
+    "edgeHostname": {
+      "description": "Search for property versions active on a specific edge hostname.",
+      "type": "string"
+    }
+  },
+  "minProperties": 1,
+  "maxProperties": 1,
+  "additionalProperties": false
+}

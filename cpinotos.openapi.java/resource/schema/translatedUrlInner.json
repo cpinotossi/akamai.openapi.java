@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Encapsulates basic metadata about an Akamaized URL (ARL).",
+    "properties": {
+        "cpCode": {
+            "description": "The CP Code that applies to this URL.",
+            "type": "integer"
+        },
+        "originServer": {
+            "description": "Origin hostname from which this URL derived.",
+            "type": "string"
+        },
+        "serialNumber": {
+            "description": "A unique identifier for a server mapped to a region.",
+            "type": "integer"
+        },
+        "ttl": {
+            "description": "Remaining time to live in cache, either the number of seconds or `Infinite`.",
+            "type": "string"
+        },
+        "typeCode": {
+            "description": "Describes how the server is configured.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "typeCode",
+        "originServer",
+        "cpCode",
+        "serialNumber",
+        "ttl"
+    ]
+}

@@ -1,0 +1,5 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Log items provided as key/value pairs. This object's membership is indeterminate.",
+    "type": "object"
+}

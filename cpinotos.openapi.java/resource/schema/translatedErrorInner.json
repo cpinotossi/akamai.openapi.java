@@ -1,0 +1,101 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Encapsulates an error translation within a top-level `translatedError` member.",
+    "type": "object",
+    "properties": {
+        "clientIp": {
+            "description": "The IP address of the client that attempted to contact the edge server to request the content. This is the machine that made a TCP connection to the edge server, possibly the IP address of a proxy server.",
+            "type": "string"
+        },
+        "connectingIp": {
+            "description": "The IP address of the connecting server.",
+            "type": "string"
+        },
+        "cpcode": {
+            "description": "The CP code for this request.",
+            "type": "string"
+        },
+        "epochTime": {
+            "description": "When the request occurred, in epoch seconds. See also the `timestamp`.",
+            "type": "integer"
+        },
+        "httpResponseCode": {
+            "description": "The HTTP response code.",
+            "type": "integer"
+        },
+        "logs": {
+            "type": "array",
+            "items": {
+                "description": "A series of loglines for this error request. Note that this data is arranged differently than in the [LogLines](data.html#loglines) object.",
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "description": "Description for this logline.",
+                        "type": "string"
+                    },
+                    "fields": {
+                        "description": "Log items provided as key/value pairs. This object's membership is indeterminate.",
+                        "$ref": "fields.json"
+                    }
+                },
+                "required": [
+                    "description",
+                    "fields"
+                ]
+            }
+        },
+        "originHostname": {
+            "description": "The origin hostname.",
+            "type": "string"
+        },
+        "originIp": {
+            "description": "The origin IP address that the edge server attempted to connect to.",
+            "type": "string"
+        },
+        "reasonForFailure": {
+            "description": "An error string captured on the edge server that explains why this transaction failed. See [Error Codes](data.html#errorcodes) for details.",
+            "type": "string"
+        },
+        "requestMethod": {
+            "description": "The HTTP method that the client requested for the URL.",
+            "type": "string"
+        },
+        "serverIp": {
+            "description": "The IP address of the edge server that answered the client's request or served the error.",
+            "type": "string"
+        },
+        "timestamp": {
+            "description": "When the request occurred, formatted as RFC-2616. See also the `epochTime`.",
+            "type": "string"
+        },
+        "url": {
+            "description": "The URL address the client tried to access.",
+            "type": "string"
+        },
+        "userAgent": {
+            "description": "The `User-Agent` HTTP header sent by the client to the edge server. A value of `N/A` means that the client did not identify itself.",
+            "type": "string"
+        },
+        "wafDetails": {
+            "description": "Provides details on any firewall applied to this request.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "url",
+        "httpResponseCode",
+        "timestamp",
+        "epochTime",
+        "clientIp",
+        "connectingIp",
+        "serverIp",
+        "originHostname",
+        "originIp",
+        "userAgent",
+        "requestMethod",
+        "reasonForFailure",
+        "wafDetails",
+        "cpcode",
+        "logs"
+    ]
+}

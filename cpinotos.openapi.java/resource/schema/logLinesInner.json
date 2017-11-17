@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Contains `grep` data within a top-level `logLines` member, arranged as tables of tab-delimited text. Note that this log data is arranged in a different format as in the [TranslatedError.logs[n]](data.html#20849ee) object.",
+    "type": "object",
+    "properties": {
+        "headers": {
+            "description": "Tab-delimited labels for each column of `logs` data.",
+            "type": "string"
+        },
+        "logs": {
+            "type": "array",
+            "items": {
+                "description": "The set of log line rows after being filtered with `grep`. Each tab-delimited column corresponds to a `headers` label.",
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "headers",
+        "logs"
+    ]
+}

@@ -1,0 +1,67 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "detail": {
+            "description": "A detailed message describing the problem.",
+            "type": "string"
+        },
+        "errors": {
+            "type": "array",
+            "items": {
+                "description": "A list of errors.",
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "description": "The error detail.",
+                        "type": "string"
+                    },
+                    "fieldName": {
+                        "description": "The input param that caused the error.",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "fieldName",
+                    "error"
+                ]
+            }
+        },
+        "instance": {
+            "description": "The instance on which this error occured.",
+            "type": "string",
+            "required": false
+        },
+        "method": {
+            "description": "The http method for this request.",
+            "type": "string"
+        },
+        "requestTime": {
+            "description": "The request time recorded.",
+            "type": "string"
+        },
+        "status": {
+            "description": "The http status of the request.",
+            "type": "integer"
+        },
+        "title": {
+            "description": "The title of this problem message",
+            "type": "string"
+        },
+        "type": {
+            "description": "The type of http error problem.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "type",
+        "title",
+        "status",
+        "detail",
+        "instance",
+        "method",
+        "requestTime",
+        "errors"
+    ]
+}

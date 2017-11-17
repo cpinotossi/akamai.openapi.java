@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-04-schema#",
+  "id": "resource:/descriptors/papi/v0/schemas/CreateNewActivationOrDeactivationRequestV0.json#",
+  "type": "object",
+  "javaType": "com.akamai.luna.papi.model.PropertyActivationRequest",
+  "properties": {
+    "propertyVersion": {
+      "type": "integer"
+    },
+    "network": {
+      "type": "string",
+      "enum": [
+        "STAGING",
+        "PRODUCTION"
+      ]
+    },
+    "note": {
+      "type": "string"
+    },
+    "notifyEmails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acknowledgeWarnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acknowledgeAllWarnings": {
+      "type": "boolean",
+      "default": false
+    },
+    "activationType": {
+      "type": "string",
+      "enum": [
+        "ACTIVATE",
+        "DEACTIVATE"
+      ],
+      "default": "ACTIVATE"
+    },
+    "fastPush": {
+      "type": "boolean",
+      "default": true
+    },
+    "ignoreHttpErrors": {
+      "type": "boolean",
+      "default": true
+    },
+    "complianceRecord": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "noncomplianceReason": {
+              "type": "string",
+              "enum": [
+                "NONE"
+              ]
+            },
+            "customerEmail": {
+              "type": "string"
+            },
+            "peerReviewedBy": {
+              "type": "string"
+            },
+            "unitTested": {
+              "type": "boolean"
+            },
+            "ticketId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noncomplianceReason",
+            "unitTested",
+            "peerReviewedBy",
+            "customerEmail"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "noncomplianceReason": {
+              "type": "string",
+              "enum": [
+                "OTHER"
+              ]
+            },
+            "otherNoncomplianceReason": {
+              "type": "string"
+            },
+            "ticketId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noncomplianceReason",
+            "otherNoncomplianceReason"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "noncomplianceReason": {
+              "type": "string",
+              "enum": [
+                "NO_PRODUCTION_TRAFFIC",
+                "EMERGENCY"
+              ]
+            },
+            "ticketId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noncomplianceReason"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "propertyVersion",
+    "network",
+    "notifyEmails"
+  ]
+}

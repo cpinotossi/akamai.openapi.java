@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Outer wrapper for a translated error message.",
+    "type": "object",
+    "properties": {
+        "translatedError": {
+            "$ref": "translatedErrorInner.json"
+        }
+    },
+    "required": [
+        "translatedError"
+    ]
+}

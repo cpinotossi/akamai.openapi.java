@@ -1,6 +1,10 @@
 package cpinotos.openapi;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.TimeZone;
 
 //import com.akamai.edgeauth.AkamaiTokenConfig;
 //import com.akamai.edgeauth.AkamaiTokenGenerator;
@@ -14,14 +18,20 @@ import cpinotos.openapi.cli.CommandDelete;
 import cpinotos.openapi.cli.CommandDir;
 import cpinotos.openapi.cli.CommandDownload;
 import cpinotos.openapi.cli.CommandEdgeurl;
+import cpinotos.openapi.cli.CommandGetLogLinesByIP;
 import cpinotos.openapi.cli.CommandMkdir;
 import cpinotos.openapi.cli.CommandPurge;
 import cpinotos.openapi.cli.CommandPurgeCPCode;
+import cpinotos.openapi.cli.CommandTranslatedError;
 import cpinotos.openapi.cli.CommandUpload;
+import cpinotos.openapi.cli.CommandUrlDebug;
 import cpinotos.openapi.cli.Commands;
 import cpinotos.openapi.netstorage.NetStorageDirResultStat;
 import cpinotos.openapi.papi.PapiSearchResult;
 import cpinotos.openapi.papi.PapiSearchResultItem;
+import cpinotos.openapi.services.DiagnosticTools;
+import cpinotos.openapi.services.data.LogLines;
+import cpinotos.openapi.services.data.TranslatedError;
 
 public class OpenCLI {
 
@@ -42,6 +52,9 @@ public class OpenCLI {
 		CommandEdgeurl cmdEdgeurl = new cpinotos.openapi.cli.CommandEdgeurl();
 		CommandPurge cmdPurge = new cpinotos.openapi.cli.CommandPurge();
 		CommandPurgeCPCode cmdPurgeCPCode = new cpinotos.openapi.cli.CommandPurgeCPCode();
+		CommandUrlDebug cmdUrlDebug = new CommandUrlDebug();
+		CommandTranslatedError cmdTranslateError = new CommandTranslatedError();
+		CommandGetLogLinesByIP cmdGetLogLinesByIP = new CommandGetLogLinesByIP();
 		JCommander jc = new JCommander();
 		jc.addObject(commands);
 		jc.addCommand("du", cmdDu);
@@ -53,6 +66,9 @@ public class OpenCLI {
 		jc.addCommand("edgeurl", cmdEdgeurl);
 		jc.addCommand("invalidate", cmdPurge);
 		jc.addCommand("invalidate_cpcode", cmdPurgeCPCode);
+		jc.addCommand("url_debug",cmdUrlDebug);
+		jc.addCommand("translate_error",cmdTranslateError);
+		jc.addCommand("logs_by_ip", cmdGetLogLinesByIP);
 	    try {
 	        jc.parse(args);
 	    } catch (Exception e) {
@@ -81,7 +97,7 @@ public class OpenCLI {
 		openAPI.logger.debug("Purge Client Secret: " + openAPI.getPurgeClientSecret());
 		openAPI.logger.debug("Purge Client Token: " + openAPI.getPurgeClientToken());
 		openAPI.logger.debug("Purge Client Host: " + openAPI.getPurgeHost());
-		openAPI.logger.debug("Purge Invalidation Endpoint: " + openAPI.getPurgeInvalidateEndpoint());
+		openAPI.logger.debug("Purge Invalidation Endpoint: " + openAPI.getApiPurgeInvalidateEndpoint());
 		openAPI.logger.debug("API Client Secret: " + openAPI.getApiClientSecret());
 		openAPI.logger.debug("API Host: " + openAPI.getApiHost());
 		openAPI.logger.debug("API Access Token: " + openAPI.getApiAccessToken());
@@ -185,8 +201,41 @@ public class OpenCLI {
 				boolean responseDelete = openAPI.doNetstorageDelete(cmdDelete.out);
 				openAPI.logger.info("ns.delete(" + cmdDelete.out + "): " + responseDelete);
 				openAPI.logger.info("done");	
-
-			break; // optional			
+			break; // optional	
+		case "url_debug":
+			openAPI.logger.info("Start URL Debug for URL:" + cmdUrlDebug.url);
+			String responseUrlDebug = openAPI.doUrlDebug(cmdUrlDebug.url,cmdUrlDebug.edgeip, cmdUrlDebug.header);
+			openAPI.logger.info("Result: " + responseUrlDebug);
+			openAPI.logger.info("done");
+			break; // optional
+		case "translate_error":
+			openAPI.logger.info("Start Translate ErrorCode:" + cmdTranslateError.errorCode);
+			DiagnosticTools dt = new DiagnosticTools(openAPI);
+			TranslatedError responseTranslateError = dt.doTranslateError(cmdTranslateError.errorCode);
+			openAPI.logger.info("ReasonForFailure: " + responseTranslateError.getTranslatedError().getReasonForFailure());
+			openAPI.logger.info("done");
+			break; // optional		
+		case "logs_by_ip":
+			openAPI.logger.info("Start Get Log Lines by IP:" + cmdGetLogLinesByIP.ipAddress);
+			String endTime = cmdGetLogLinesByIP.endTime;
+			try {
+				//Transform Date at HTTP Response Header in RFC2616 into Date needed in ISO 8601
+				SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+				java.util.Date date = format.parse(endTime);
+				TimeZone tz = TimeZone.getTimeZone("UTC");
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+				df.setTimeZone(tz);
+				endTime = df.format(date);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			openAPI.logger.info("endTime:" + endTime);
+			DiagnosticTools dt2 = new DiagnosticTools(openAPI);
+			LogLines logLines = dt2.doGetLogLinesFromIP(cmdGetLogLinesByIP.ipAddress, endTime, "", "", "", "", "", "", "", "", "", "", "");
+			openAPI.logger.info("Log Lines: " + logLines.getLogLines());
+			openAPI.logger.info("done");
+			break; // optional		
 		default: // default
 			openAPI.logger.info("please use a command:");
 		}

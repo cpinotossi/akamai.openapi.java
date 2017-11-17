@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04-schema#",
+  "id": "resource:/descriptors/papi/v0/schemas/CreateNewCPCodeRequestV0.json#",
+  "type": "object",
+  "javaType": "com.akamai.luna.papi.model.CPCodeCreateRequest",
+  "properties": {
+    "productId": {
+      "type": "string"
+    },
+    "cpcodeName": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "productId",
+    "cpcodeName"
+  ]
+}

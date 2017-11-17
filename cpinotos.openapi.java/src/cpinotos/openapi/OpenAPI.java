@@ -15,26 +15,25 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 //import java.time.Instant;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.ini4j.Wini;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//import com.akamai.edgeauth.AkamaiTokenConfig;
-//import com.akamai.edgeauth.Algorithm;
-
-import io.github.astinchoi.authtoken.AuthToken;
-import io.github.astinchoi.authtoken.AuthTokenBuilder;
-import io.github.astinchoi.authtoken.AuthTokenException;
-
 import com.akamai.edgegrid.signer.ClientCredential;
+import com.akamai.edgegrid.signer.EdgeRcClientCredentialProvider;
+import com.akamai.edgegrid.signer.Request;
+import com.akamai.edgegrid.signer.Request.RequestBuilder;
 import com.akamai.edgegrid.signer.exceptions.RequestSigningException;
 import com.akamai.edgegrid.signer.googlehttpclient.GoogleHttpClientEdgeGridRequestSigner;
 import com.akamai.netstorage.DefaultCredential;
@@ -55,6 +54,17 @@ import cpinotos.openapi.netstorage.NetStorageDirResult;
 import cpinotos.openapi.netstorage.NetStorageDirResultFile;
 import cpinotos.openapi.netstorage.NetStorageDirResultStat;
 import cpinotos.openapi.papi.PapiSearchResult;
+import cpinotos.openapi.services.DiagnosticTools;
+import cpinotos.openapi.services.data.UrlDebug;
+
+//import com.akamai.edgeauth.AkamaiTokenConfig;
+//import com.akamai.edgeauth.Algorithm;
+
+import io.github.astinchoi.authtoken.AuthToken;
+import io.github.astinchoi.authtoken.AuthTokenBuilder;
+import io.github.astinchoi.authtoken.AuthTokenException;
+import lombok.Getter;
+import lombok.Setter;
 
 /*
  * TODO use lombok
@@ -68,11 +78,25 @@ public class OpenAPI {
 	public ch.qos.logback.classic.Logger logger = null;
 
 	// Define all needed attributes
-	private String host, netstorageClient, netstorageKey, netstorageHost, purgeClientSecret, purgeHost,
-			purgeAccessToken, purgeClientToken, purgeInvalidateEndpoint, purgeInvalidateCPCodeEndpoint, apiClientSecret, apiHost, apiAccessToken,
-			apiClientToken, apiPapiSearchEndpoint, apiPapiGetEndpoint, apiPapiGetRuletreeEndpoint;
+	private String netstorageClient, netstorageKey, netstorageHost, purgeClientSecret, purgeHost,
+			purgeAccessToken, purgeClientToken, apiClientSecret, apiHost, apiAccessToken,
+			apiClientToken;
+	
+	@Getter @Setter private String host;
+	@Getter @Setter private String apiPurgeInvalidateEndpoint;
+	@Getter @Setter private String apiPurgeInvalidateCPCodeEndpoint;
+	@Getter @Setter private String apiPurgeInvalidateTagEndpoint;
+	@Getter @Setter private String apiPapiSearchEndpoint;
+	@Getter @Setter private String apiPapiGetEndpoint;
+	@Getter @Setter private String apiDiagnosticToolsUrlDebugEndpoint;
+	@Getter @Setter private String apiPapiGetRuletreeEndpoint;
+	@Getter @Setter private String apiDiagnosticToolsTranslatedErrorEndpoint;
+	@Getter @Setter private String apiDiagnosticToolsGetLogLinesFromIPEndpoint;
+	
 	// Credential objects needed for the different Akamai OPEN API endpoints
-	private ClientCredential purgeCredential, apiCredential;
+	@Getter @Setter private ClientCredential purgeCredential;
+	@Getter @Setter private ClientCredential apiCredential;
+	
 	private NetStorage netstorage = null;
 	
 	public OpenAPI(String propertyFilePath, boolean debug) {
@@ -84,49 +108,82 @@ public class OpenAPI {
 			this.logger.setLevel(Level.INFO);
 		}
 
-		Properties properties = propertyFromFileReader(propertyFilePath);
+		Wini ini = null;
+		try {
+			ini = new Wini(new File(propertyFilePath));
+			//api-endpoints
+			this.setApiPurgeInvalidateEndpoint(ini.get("api-endpoints","apiPurgeInvalidateEndpoint"));
+			this.logger.debug("Purge Invalidation Endpoint: " + this.getApiPurgeInvalidateEndpoint());
+			
+			this.setApiPurgeInvalidateCPCodeEndpoint(ini.get("api-endpoints","apiPurgeInvalidateCPCodeEndpoint"));
+			this.logger.debug("Purge Invalidation Endpoint: " + this.getApiPurgeInvalidateEndpoint());
 
-		this.setHost(properties.getProperty("host"));
-		this.logger.debug("Host: " + this.getHost());
+			this.setApiPapiSearchEndpoint(ini.get("api-endpoints","apiPapiSearchEndpoint"));
+			this.logger.debug("API PAPI Search Endpoint: " + this.getApiPapiSearchEndpoint());
 
-		this.setNetstorageClient(properties.getProperty("netstorage_client"));
-		this.logger.debug("Netstorage Client: " + this.getNetstorageClient());
-		this.setNetstorageHost(properties.getProperty("netstorage_host"));
-		this.logger.debug("Netstorage Host: " + this.getNetstorageHost());
-		this.setNetstorageKey(properties.getProperty("netstorage_key"));
-		this.logger.debug("Netstorage Key: " + this.getNetstorageKey());
-		this.setPurgeAccessToken(properties.getProperty("purge_access_token"));
-		this.logger.debug("Purge Access Token: " + this.getPurgeAccessToken());
-		this.setPurgeClientSecret(properties.getProperty("purge_client_secret"));
-		this.logger.debug("Purge Client Secret: " + this.getPurgeClientSecret());
-		this.setPurgeClientToken(properties.getProperty("purge_client_token"));
-		this.logger.debug("Purge Client Token: " + this.getPurgeClientToken());
-		this.setPurgeHost(properties.getProperty("purge_host"));
-		this.logger.debug("Purge Client Host: " + this.getPurgeHost());
-		this.setPurgeInvalidateEndpoint(properties.getProperty("purge_invalidate_endpoint"));
-		this.logger.debug("Purge Invalidation Endpoint: " + this.getPurgeInvalidateEndpoint());
-		this.setPurgeInvalidateCPCodeEndpoint(properties.getProperty("purge_invalidate_cpcode_endpoint"));
-		this.logger.debug("Purge Invalidation Endpoint: " + this.getPurgeInvalidateEndpoint());
-		this.setApiClientSecret(properties.getProperty("api_client_secret"));
-		this.logger.debug("API Client Secret: " + this.getApiClientSecret());
+			this.setApiPapiGetEndpoint(ini.get("api-endpoints","apiPapiGetEndpoint"));
+			this.logger.debug("API PAPI GET Endpoint: " + this.getApiPapiGetEndpoint());
 
-		this.setApiHost(properties.getProperty("api_host"));
-		this.logger.debug("API Host: " + this.getApiHost());
+			this.setApiPapiGetRuletreeEndpoint(ini.get("api-endpoints","apiPapiGetRuletreeEndpoint"));
+			this.logger.debug("API PAPI GET Ruletree Endpoint: " + this.getApiPapiGetRuletreeEndpoint());
 
-		this.setApiAccessToken(properties.getProperty("api_access_token"));
-		this.logger.debug("API Access Token: " + this.getApiAccessToken());
+			this.setApiDiagnosticToolsUrlDebugEndpoint(ini.get("api-endpoints","apiDiagnosticToolsUrlDebugEndpoint"));
+			this.logger.debug("API Diagnostic Tools Url Debug Endpoint: " + this.getApiDiagnosticToolsUrlDebugEndpoint());
+			
+			this.setApiDiagnosticToolsTranslatedErrorEndpoint(ini.get("api-endpoints","apiDiagnosticToolsTranslatedErrorEndpoint"));
+			this.logger.debug("API Diagnostic Tools Translated Error Endpoint: " + this.getApiDiagnosticToolsTranslatedErrorEndpoint());
+			
+			this.setApiDiagnosticToolsGetLogLinesFromIPEndpoint(ini.get("api-endpoints","apiDiagnosticToolsGetLogLinesFromIPEndpoint"));
+			this.logger.debug("API Diagnostic Tools Get Log Lines by IP Endpoint: " + this.getApiDiagnosticToolsGetLogLinesFromIPEndpoint());
+			
+			//nestorage-upload-account
+			this.setNetstorageClient(ini.get("nestorage-upload-account","client"));
+			this.logger.debug("Netstorage Client: " + this.getNetstorageClient());
+			this.setNetstorageHost(ini.get("nestorage-upload-account","host"));
+			this.logger.debug("Netstorage Host: " + this.getNetstorageHost());
+			this.setNetstorageKey(ini.get("nestorage-upload-account","key"));
+			this.logger.debug("Netstorage Key: " + this.getNetstorageKey());
+			
+			//general
+			this.setHost(ini.get("general", "host"));
+			this.logger.debug("Host: " + this.getHost());
+			if(!ini.get("general", "edgerc-file").isEmpty()){
+				ini = new Wini(new File(ini.get("general", "edgerc-file")));
+			}
+			
+			//akamai-api-purge
+			if(!ini.containsKey("akamai-api-purge")){
+				this.logger.info("Credentials section akamai-api-purge is missing");
+				System.exit(1);
+			}
+			this.setPurgeAccessToken(ini.get("akamai-api-purge","access_token"));
+			this.logger.debug("Purge Access Token: " + this.getPurgeAccessToken());
+			this.setPurgeClientSecret(ini.get("akamai-api-purge","client_secret"));
+			this.logger.debug("Purge Client Secret: " + this.getPurgeClientSecret());
+			this.setPurgeClientToken(ini.get("akamai-api-purge","client_token"));
+			this.logger.debug("Purge Client Token: " + this.getPurgeClientToken());
+			this.setPurgeHost(ini.get("akamai-api-purge","host"));
+			this.logger.debug("Purge Client Host: " + this.getPurgeHost());
+				
+			//akamai-api
+			if(!ini.containsKey("akamai-api")){
+				this.logger.info("Credentials section akamai-api is missing");
+				System.exit(1);
+			}
+			this.setApiClientSecret(ini.get("akamai-api","client_secret"));
+			this.logger.debug("API Client Secret: " + this.getApiClientSecret());
+			this.setApiHost(ini.get("akamai-api","host"));
+			this.logger.debug("API Host: " + this.getApiHost());
+			this.setApiAccessToken(ini.get("akamai-api","access_token"));
+			this.logger.debug("API Access Token: " + this.getApiAccessToken());
+			this.setApiClientToken(ini.get("akamai-api","client_token"));
+			this.logger.debug("API Client Token: " + this.getApiClientToken());
 
-		this.setApiClientToken(properties.getProperty("api_client_token"));
-		this.logger.debug("API Client Token: " + this.getApiClientToken());
-
-		this.setApiPapiSearchEndpoint(properties.getProperty("api_papi_search_endpoint"));
-		this.logger.debug("API PAPI Search Endpoint: " + this.getApiPapiSearchEndpoint());
-
-		this.setApiPapiGetEndpoint(properties.getProperty("api_papi_get_endpoint"));
-		this.logger.debug("API PAPI GET Endpoint: " + this.getApiPapiGetEndpoint());
-
-		this.setApiPapiGetRuletreeEndpoint(properties.getProperty("api_papi_get_ruletree_endpoint"));
-		this.logger.debug("API PAPI GET Ruletree Endpoint: " + this.getApiPapiGetRuletreeEndpoint());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 
 		// Create the EdgeGrid credential object
 		// NOTE: DEFAULT_MAX_BODY_SIZE_IN_BYTES = 131072;
@@ -399,7 +456,7 @@ public class OpenAPI {
 		URI uri = null;
 		HttpRequest request = null;
 		//Get the current Purge API Endpoint
-		String purgeInvalidateEndpoint = this.getPurgeInvalidateEndpoint();
+		String purgeInvalidateEndpoint = this.getApiPurgeInvalidateEndpoint();
 		if(isStaging){
 			//In case isStaging is TRUE modify Purge API Endpoint to purge staging instead of production
 			purgeInvalidateEndpoint = purgeInvalidateEndpoint.replaceAll("production", "staging");
@@ -455,7 +512,7 @@ public class OpenAPI {
 		URI uri = null;
 		HttpRequest request = null;
 		//Get the current Purge API Endpoint
-		String purgeCPCodeInvalidateEndpoint = this.getPurgeInvalidateCPCodeEndpoint();
+		String purgeCPCodeInvalidateEndpoint = this.getApiPurgeInvalidateCPCodeEndpoint();
 		if(isStaging){
 			//In case isStaging is TRUE modify Purge API Endpoint to purge staging instead of production
 			purgeCPCodeInvalidateEndpoint = purgeCPCodeInvalidateEndpoint.replaceAll("production", "staging");
@@ -789,21 +846,7 @@ public class OpenAPI {
 		this.purgeClientToken = purgeClientToken;
 	}
 
-	public String getPurgeInvalidateEndpoint() {
-		return purgeInvalidateEndpoint;
-	}
 
-	public void setPurgeInvalidateEndpoint(String purgeInvalidateEndpoint) {
-		this.purgeInvalidateEndpoint = purgeInvalidateEndpoint;
-	}
-
-	public ClientCredential getPurgeCredential() {
-		return purgeCredential;
-	}
-
-	public void setPurgeCredential(ClientCredential purgeCredential) {
-		this.purgeCredential = purgeCredential;
-	}
 
 	public String getApiClientSecret() {
 		return apiClientSecret;
@@ -837,51 +880,68 @@ public class OpenAPI {
 		this.apiClientToken = apiClientToken;
 	}
 
-	public String getApiPapiSearchEndpoint() {
-		return apiPapiSearchEndpoint;
-	}
 
-	public void setApiPapiSearchEndpoint(String apiPapiSearchEndpoint) {
-		this.apiPapiSearchEndpoint = apiPapiSearchEndpoint;
-	}
 
-	public ClientCredential getApiCredential() {
-		return apiCredential;
-	}
 
-	public void setApiCredential(ClientCredential apiCredential) {
-		this.apiCredential = apiCredential;
-	}
 
-	public String getApiPapiGetEndpoint() {
-		return apiPapiGetEndpoint;
-	}
 
-	public void setApiPapiGetEndpoint(String apiPapiGetEndpoint) {
-		this.apiPapiGetEndpoint = apiPapiGetEndpoint;
+	public String doUrlDebug(String url, String edgeip, ArrayList<String> header) {
+		DiagnosticTools dt = new DiagnosticTools(this);
+		UrlDebug urlDebug = null;
+		if(edgeip!=null&&header.isEmpty()){
+			urlDebug =  dt.urlDebug(url);
+		}else if(header.isEmpty()){
+			urlDebug =  dt.urlDebug(url, edgeip);
+		}else{
+			urlDebug = dt.urlDebug(url, edgeip, header);
+		}
+		return urlDebug.getUrlDebug().getResponseHeaders().toString();
 	}
-
-	public String getApiPapiGetRuletreeEndpoint() {
-		return apiPapiGetRuletreeEndpoint;
+	
+	public String doEdgeGridAPIRequest(String apiRequestUrl) {
+		String jsonResult = null;
+		// Use com.google.api.client.http Helper for HTTP Request
+		HttpTransport httpTransport = new ApacheHttpTransport();
+		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
+		URI uri = null;
+		HttpRequest request = null;
+		try {
+			uri = new URI("https://" + this.getApiHost() + apiRequestUrl);		
+			// Ensure to use Content-Type application/json
+			request = requestFactory.buildGetRequest(new GenericUrl(uri));
+			request.setReadTimeout(0);
+			// Create a new EdgeGrid Signer Object
+			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
+					this.getApiCredential());
+			// Sign the request
+			requestSigner.sign(request);
+			// send the request to the OPEN API Interface via HTTP POST
+			HttpResponse response = request.execute();
+			jsonResult = response.parseAsString();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RequestSigningException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return jsonResult;
 	}
-
-	public void setApiPapiGetRuletreeEndpoint(String apiPapiGetRuletreeEndpoint) {
-		this.apiPapiGetRuletreeEndpoint = apiPapiGetRuletreeEndpoint;
+	
+	public static String addValueToAPIEndPointURL(String apiEndPointURL, String key, String value){
+		if(value.isEmpty()){
+			apiEndPointURL = apiEndPointURL.replace("/{"+key+"}", "/");
+			apiEndPointURL = apiEndPointURL.replace("?{"+key+"}", "?");
+			apiEndPointURL = apiEndPointURL.replace("&{"+key+"}", "");			
+		}else{
+			apiEndPointURL = apiEndPointURL.replace("/{"+key+"}", "/"+value);
+			apiEndPointURL = apiEndPointURL.replace("?{"+key+"}", "?"+key+"="+value);
+			apiEndPointURL = apiEndPointURL.replace("&{"+key+"}", "&"+key+"="+value);			
+		}
+		return apiEndPointURL;
 	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public String getPurgeInvalidateCPCodeEndpoint() {
-		return purgeInvalidateCPCodeEndpoint;
-	}
-
-	public void setPurgeInvalidateCPCodeEndpoint(String purgeInvalidateCPCodeEndpoint) {
-		this.purgeInvalidateCPCodeEndpoint = purgeInvalidateCPCodeEndpoint;
-	}
+	
 }
