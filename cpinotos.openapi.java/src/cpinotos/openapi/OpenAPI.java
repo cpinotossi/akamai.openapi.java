@@ -83,6 +83,8 @@ public class OpenAPI {
 			apiClientToken;
 	
 	@Getter @Setter private String host;
+	@Getter @Setter private String apiClientName;
+	@Getter @Setter private String apiClientPurgeName;
 	@Getter @Setter private String apiPurgeInvalidateEndpoint;
 	@Getter @Setter private String apiPurgeInvalidateCPCodeEndpoint;
 	@Getter @Setter private String apiPurgeInvalidateTagEndpoint;
@@ -147,36 +149,41 @@ public class OpenAPI {
 			//general
 			this.setHost(ini.get("general", "host"));
 			this.logger.debug("Host: " + this.getHost());
+
+			this.setApiClientName(ini.get("general", "api-client"));
+			this.setApiClientPurgeName(ini.get("general", "api-client-purge"));
+			this.logger.debug("Host: " + this.getHost());
+			
 			if(!ini.get("general", "edgerc-file").isEmpty()){
 				ini = new Wini(new File(ini.get("general", "edgerc-file")));
 			}
 			
 			//akamai-api-purge
-			if(!ini.containsKey("akamai-api-purge")){
+			if(!ini.containsKey(this.getApiClientPurgeName())){
 				this.logger.info("Credentials section akamai-api-purge is missing");
 				System.exit(1);
 			}
-			this.setPurgeAccessToken(ini.get("akamai-api-purge","access_token"));
+			this.setPurgeAccessToken(ini.get(this.getApiClientPurgeName(),"access_token"));
 			this.logger.debug("Purge Access Token: " + this.getPurgeAccessToken());
-			this.setPurgeClientSecret(ini.get("akamai-api-purge","client_secret"));
+			this.setPurgeClientSecret(ini.get(this.getApiClientPurgeName(),"client_secret"));
 			this.logger.debug("Purge Client Secret: " + this.getPurgeClientSecret());
-			this.setPurgeClientToken(ini.get("akamai-api-purge","client_token"));
+			this.setPurgeClientToken(ini.get(this.getApiClientPurgeName(),"client_token"));
 			this.logger.debug("Purge Client Token: " + this.getPurgeClientToken());
-			this.setPurgeHost(ini.get("akamai-api-purge","host"));
+			this.setPurgeHost(ini.get(this.getApiClientPurgeName(),"host"));
 			this.logger.debug("Purge Client Host: " + this.getPurgeHost());
 				
 			//akamai-api
-			if(!ini.containsKey("akamai-api")){
+			if(!ini.containsKey(this.getApiClientName())){
 				this.logger.info("Credentials section akamai-api is missing");
 				System.exit(1);
 			}
-			this.setApiClientSecret(ini.get("akamai-api","client_secret"));
+			this.setApiClientSecret(ini.get(this.getApiClientName(),"client_secret"));
 			this.logger.debug("API Client Secret: " + this.getApiClientSecret());
-			this.setApiHost(ini.get("akamai-api","host"));
+			this.setApiHost(ini.get(this.getApiClientName(),"host"));
 			this.logger.debug("API Host: " + this.getApiHost());
-			this.setApiAccessToken(ini.get("akamai-api","access_token"));
+			this.setApiAccessToken(ini.get(this.getApiClientName(),"access_token"));
 			this.logger.debug("API Access Token: " + this.getApiAccessToken());
-			this.setApiClientToken(ini.get("akamai-api","client_token"));
+			this.setApiClientToken(ini.get(this.getApiClientName(),"client_token"));
 			this.logger.debug("API Client Token: " + this.getApiClientToken());
 
 		} catch (IOException e) {

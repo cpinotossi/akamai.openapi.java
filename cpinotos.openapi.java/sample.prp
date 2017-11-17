@@ -1,6 +1,4 @@
-#Hostname via which the traffic is severed with Akamai.
-host = <INSERT>
-
+[nestorage-upload-account]
 #Akamai Netstorage Upload Account User.
 netstorage_client = <INSERT>
 #Akamai Netstorage Upload Account User API Key. Needed to be able to interact with the Netstorage API.
@@ -8,23 +6,24 @@ netstorage_key = <INSERT>
 #Akamai Netstorage API Host. To be used when interacting with the Netstorage API.
 netstorage_host = <INSERT>
 
-#Akamai API User which is only used to invalidate Content.
-purge_client_secret = <INSERT> 
-purge_host = <INSERT>
-purge_access_token = <INSERT>
-purge_client_token = <INSERT>
+[general]
+#Hostname used to serve the content from
+host = <INSERT>
+#Credential File which is part of the openAPI framework.
+edgerc-file = <INSERT>
+#Name of the section of the .edgerc file which does refer an api client 
+api-client = <INSERT>
+#Name of the section of the .edgerc file which does refer an api client which is allowed to purge
+api-client-purge = <INSERT>
 
-
-#Akamai API User which is used with several APIs
-api_client_secret = <INSERT>
-api_host = <INSERT>
-api_access_token = <INSERT>
-api_client_token = <INSERT>
-
-#Akamai API Endpoints:
-purge_invalidate_cpcode_endpoint = /ccu/v3/invalidate/cpcode/production
-purge_invalidate_tag_endpoint = /ccu/v3/invalidate/tag/production
-purge_invalidate_endpoint = /ccu/v3/invalidate/url/production
-api_papi_search_endpoint = /papi/v1/search/find-by-value
-api_papi_get_endpoint = /papi/v1/properties/{propertyId}?contractId={contractId}&groupId={groupId}
-api_papi_get_ruletree_endpoint = /papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules?contractId={contractId}&groupId={groupId}&validateRules={validateRules}
+[api-endpoints]
+apiPurgeInvalidateEndpoint = /ccu/v3/invalidate/url/production
+apiPurgeInvalidateCPCodeEndpoint = /ccu/v3/invalidate/cpcode/production
+apiPurge_invalidate_tag_endpoint = /ccu/v3/invalidate/tag/production
+apiPapiSearchEndpoint = /papi/v1/search/find-by-value
+apiPapiGetEndpoint = /papi/v1/properties/{propertyId}?contractId={contractId}&groupId={groupId}
+apiPapiGetRuletreeEndpoint = /papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules?contractId={contractId}&groupId={groupId}&validateRules={validateRules}
+apiDiagnosticToolsUrlDebugEndpoint = /diagnostic-tools/v2/url-debug
+apiDiagnosticToolsTranslatedErrorEndpoint1 = /diagnostic-tools/v2/errors/{errorCode}/translated-error
+apiDiagnosticToolsGetLogLinesFromIPEndpoint2 = /diagnostic-tools/v2/ip-addresses/{ipAddress}/log-lines?endTime={endTime}
+apiDiagnosticToolsGetLogLinesFromIPEndpoint = /diagnostic-tools/v2/ip-addresses/{ipAddress}/log-lines?{endTime}&{arl}&{clientIp}&{cpCode}&{duration}&{hostHeader}&{httpStatusCode}&{logType}&{maxLogLines}&{objStatus}&{requestId}&{userAgent}
