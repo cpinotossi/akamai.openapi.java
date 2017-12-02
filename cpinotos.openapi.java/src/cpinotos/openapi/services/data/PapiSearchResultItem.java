@@ -1,4 +1,4 @@
-package cpinotos.openapi.papi;
+package cpinotos.openapi.services.data;
 
 public class PapiSearchResultItem {
 private String accountId,assetId,contractId,groupId,note,productionStatus,propertyId,propertyName,propertyVersion,stagingStatus,updatedByUser,updatedDate;

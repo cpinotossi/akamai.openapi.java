@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.TimeZone;
 
 //import com.akamai.edgeauth.AkamaiTokenConfig;
@@ -20,6 +21,8 @@ import cpinotos.openapi.cli.CommandDownload;
 import cpinotos.openapi.cli.CommandEdgeurl;
 import cpinotos.openapi.cli.CommandGetLogLinesByIP;
 import cpinotos.openapi.cli.CommandMkdir;
+import cpinotos.openapi.cli.CommandPapiCPCode;
+import cpinotos.openapi.cli.CommandProducts;
 import cpinotos.openapi.cli.CommandPurge;
 import cpinotos.openapi.cli.CommandPurgeCPCode;
 import cpinotos.openapi.cli.CommandTranslatedError;
@@ -27,10 +30,15 @@ import cpinotos.openapi.cli.CommandUpload;
 import cpinotos.openapi.cli.CommandUrlDebug;
 import cpinotos.openapi.cli.Commands;
 import cpinotos.openapi.netstorage.NetStorageDirResultStat;
-import cpinotos.openapi.papi.PapiSearchResult;
-import cpinotos.openapi.papi.PapiSearchResultItem;
 import cpinotos.openapi.services.DiagnosticTools;
+import cpinotos.openapi.services.PropertyManagerAPI;
+import cpinotos.openapi.services.data.CreateNewCPCodeResultV0;
+import cpinotos.openapi.services.data.ListCPCode;
+import cpinotos.openapi.services.data.ListCPCodeResult;
 import cpinotos.openapi.services.data.LogLines;
+import cpinotos.openapi.services.data.ProductsResult;
+import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseItemV0;
+import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseV0;
 import cpinotos.openapi.services.data.TranslatedError;
 
 public class OpenCLI {
@@ -42,19 +50,21 @@ public class OpenCLI {
 			System.exit(1);
 		}
 		// Read user input parameter.
-		Commands commands = new cpinotos.openapi.cli.Commands();
-		CommandUpload cmdUpload = new cpinotos.openapi.cli.CommandUpload();
-		CommandDownload cmdDownload = new cpinotos.openapi.cli.CommandDownload();
-		CommandDU cmdDu = new cpinotos.openapi.cli.CommandDU();
-		CommandDir cmdDir = new cpinotos.openapi.cli.CommandDir();
+		Commands commands = new Commands();
+		CommandUpload cmdUpload = new CommandUpload();
+		CommandDownload cmdDownload = new CommandDownload();
+		CommandDU cmdDu = new CommandDU();
+		CommandDir cmdDir = new CommandDir();
 		CommandDelete cmdDelete = new cpinotos.openapi.cli.CommandDelete();
-		CommandMkdir cmdMkdir = new cpinotos.openapi.cli.CommandMkdir();
-		CommandEdgeurl cmdEdgeurl = new cpinotos.openapi.cli.CommandEdgeurl();
-		CommandPurge cmdPurge = new cpinotos.openapi.cli.CommandPurge();
-		CommandPurgeCPCode cmdPurgeCPCode = new cpinotos.openapi.cli.CommandPurgeCPCode();
+		CommandMkdir cmdMkdir = new CommandMkdir();
+		CommandEdgeurl cmdEdgeurl = new CommandEdgeurl();
+		CommandPurge cmdPurge = new CommandPurge();
+		CommandPurgeCPCode cmdPurgeCPCode = new CommandPurgeCPCode();
 		CommandUrlDebug cmdUrlDebug = new CommandUrlDebug();
 		CommandTranslatedError cmdTranslateError = new CommandTranslatedError();
 		CommandGetLogLinesByIP cmdGetLogLinesByIP = new CommandGetLogLinesByIP();
+		CommandPapiCPCode cmdCpCode = new CommandPapiCPCode();
+		CommandProducts cmdProducts = new CommandProducts();
 		JCommander jc = new JCommander();
 		jc.addObject(commands);
 		jc.addCommand("du", cmdDu);
@@ -69,6 +79,8 @@ public class OpenCLI {
 		jc.addCommand("url_debug",cmdUrlDebug);
 		jc.addCommand("translate_error",cmdTranslateError);
 		jc.addCommand("logs_by_ip", cmdGetLogLinesByIP);
+		jc.addCommand("cpcode", cmdCpCode);
+		jc.addCommand("products", cmdProducts);
 	    try {
 	        jc.parse(args);
 	    } catch (Exception e) {
@@ -106,6 +118,9 @@ public class OpenCLI {
 		openAPI.logger.debug("API PAPI GET Endpoint: " + openAPI.getApiPapiGetEndpoint());
 		openAPI.logger.debug("API PAPI GET Ruletree Endpoint: " + openAPI.getApiPapiGetRuletreeEndpoint());
 
+		PropertyManagerAPI papi;
+		Gson gsonBuilder;
+		
 		switch (currentCmd) {
 		case "mkdir":
 			openAPI.logger.info("Start mkdir:");
@@ -130,11 +145,12 @@ public class OpenCLI {
 		case "edgeurl":
 			openAPI.logger.info("Start edgeurl:");
 			openAPI.logger.info("edgeURL:step1/7: found Property Configuration for Hostname " + openAPI.getHost());
-			PapiSearchResult psr = openAPI.searchPAPIConfiguration();
+			papi = new PropertyManagerAPI(openAPI);
+			SearchPropertyVersionsBySingleValueResponseV0 psr = papi.searchPAPIConfiguration();
 			//TODO Handle exception no config for provided hostname
-			PapiSearchResultItem psri = psr.getVersions().getItems().get(0);
+			SearchPropertyVersionsBySingleValueResponseItemV0 psri = psr.getVersions().getItems().get(0);
 			openAPI.logger.info("edgeURL:step2/7: found Property Configuration "+ psri.getPropertyName() +"  version "+ psri.getPropertyVersion());
-			String prt = openAPI.getPAPIRuletree(psri.getPropertyId(), psri.getPropertyVersion(), psri.getContractId(),
+			String prt = papi.getPAPIRuletree(psri.getPropertyId(), psri.getPropertyVersion(), psri.getContractId(),
 					psri.getGroupId(), false);
 			openAPI.logger.info("edgeURL:step3/7: downloaded Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
 			openAPI.logger.debug(prt);
@@ -176,14 +192,14 @@ public class OpenCLI {
 				openAPI.logger.info("Start dir recursive:");
 				openAPI.logger.info("list the folder recursive:" + cmdDir.out);
 				NetStorageDirResultStat netStorageDirResultStat = openAPI.doNetstorageDir(cmdDir.out, cmdDir.recursive);
-				Gson gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
 				openAPI.logger.info("ns.dir.recursive(" + cmdDir.out + "):\n"+gsonBuilder.toJson(netStorageDirResultStat));
 				openAPI.logger.info("done");						
 			}else{
 				openAPI.logger.info("Start dir:");
 				openAPI.logger.info("list the folder:" + cmdDir.out);
 				NetStorageDirResultStat netStorageDirResultStat = openAPI.doNetstorageDir(cmdDir.out);
-				Gson gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
 				openAPI.logger.info("ns.dir(" + cmdDir.out + "):\n" + gsonBuilder.toJson(netStorageDirResultStat));
 				openAPI.logger.info("done");				
 			}
@@ -235,7 +251,54 @@ public class OpenCLI {
 			LogLines logLines = dt2.doGetLogLinesFromIP(cmdGetLogLinesByIP.ipAddress, endTime, "", "", "", "", "", "", "", "", "", "", "");
 			openAPI.logger.info("Log Lines: " + logLines.getLogLines());
 			openAPI.logger.info("done");
+			break; // optional	
+			
+		case "products":
+			ProductsResult productsResults;
+			papi = new PropertyManagerAPI(openAPI);
+			if(cmdProducts.contractId==null){
+				productsResults = papi.doListProducts();
+			}else{
+				productsResults =papi.doListProducts(cmdProducts.contractId);
+			}
+			gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+			System.out.println(gsonBuilder.toJson(productsResults));
 			break; // optional		
+		case "cpcode":
+			papi = new PropertyManagerAPI(openAPI);
+			if (cmdCpCode.action.equals("list")){
+				ListCPCodeResult listCPCodeResult;
+				if(cmdCpCode.contractId == null || cmdCpCode.groupId == null){
+					listCPCodeResult = papi.doListCPCodes();	
+				}
+				else{
+					listCPCodeResult = papi.doListCPCodes(cmdCpCode.contractId,cmdCpCode.groupId);	
+				}
+				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+				Iterator<ListCPCode> i = listCPCodeResult.getCpcodes().getItems().iterator();
+				while(i.hasNext()){
+					System.out.println(gsonBuilder.toJson(i.next()));
+				}				
+			}else if (cmdCpCode.action.equals("search")){
+				//TBD
+			}else if (cmdCpCode.action.equals("create")){
+				CreateNewCPCodeResultV0 result = null;
+				if(cmdCpCode.name == null || cmdCpCode.productId == null){
+					openAPI.logger.info("Please enter an CPCode and Product ID.");
+				}
+				else if(cmdCpCode.contractId == null || cmdCpCode.groupId == null){
+					result = papi.doCreateCPCodes(cmdCpCode.name, cmdCpCode.productId);	
+					gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+					System.out.println(gsonBuilder.toJson(result));
+				}
+				else{
+					result = papi.doCreateCPCodes(cmdCpCode.contractId,cmdCpCode.groupId, cmdCpCode.name, cmdCpCode.productId);	
+					gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+					System.out.println(gsonBuilder.toJson(result));
+				}
+
+			};
+			break; // optional	
 		default: // default
 			openAPI.logger.info("please use a command:");
 		}

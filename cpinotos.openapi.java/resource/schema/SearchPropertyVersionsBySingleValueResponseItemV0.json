@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "PAPI Search Result Item.",
+    "type": "object",    
+    "properties": {
+      "updatedByUser": {"type": "string"},
+      "stagingStatus": {"type": "string"},
+      "assetId": {"type": "string"},
+      "propertyName": {"type": "string"},
+      "propertyVersion": {"type": "integer"},
+      "updatedDate": {"type": "string"},
+      "contractId": {"type": "string"},
+      "accountId": {"type": "string"},
+      "groupId": {"type": "string"},
+      "propertyId": {"type": "string"},
+      "productionStatus": {"type": "string"}
+    },
+    "required": [
+        "updatedByUser","stagingStatus","assetId","propertyName","propertyVersion","updatedDate","contractId","accountId","groupId","propertyId","productionStatus"
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "PAPI CPCode get List result.",
+    "type": "object",    
+    "properties": {
+      "items": {
+        "type": "array",
+                "items":{
+        "$ref": "ListCPCode.json"
+        }
+      }
+    },
+    "required": [
+        "items"
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "PAPI create CPCode.",
+    "type": "object",    
+    "properties": {
+      "cpcodeLink": {"type": "string"},
+      "contractId": {"type": "string"},
+      "groupId": {"type": "string"},
+      "cpcodes": {"type": "string"}
+    },
+    "required": [
+        "cpcodeLink"
+    ]
+}

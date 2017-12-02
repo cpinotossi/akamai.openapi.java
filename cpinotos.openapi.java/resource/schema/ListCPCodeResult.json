@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "PAPI CPCode get List result.",
+    "type": "object",    
+    "properties": {
+      "accountId": {"type": "string"},
+      "contractId": {"type": "string"},
+      "groupId": {"type": "string"},
+      "cpcodes": {"$ref": "ListCPCodes.json"}
+    },
+    "required": [
+        "accountId","contractId","groupId","cpcodes"
+    ]
+}

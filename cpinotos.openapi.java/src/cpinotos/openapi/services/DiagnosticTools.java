@@ -1,19 +1,12 @@
 package cpinotos.openapi.services;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import org.joda.time.format.DateTimeFormat;
 
 import com.akamai.edgegrid.signer.exceptions.RequestSigningException;
 import com.akamai.edgegrid.signer.googlehttpclient.GoogleHttpClientEdgeGridRequestSigner;
@@ -33,6 +26,53 @@ import cpinotos.openapi.services.data.UrlDebug;
 
 public class DiagnosticTools {
 private OpenAPI openAPI;
+
+public static void main(String[] args) throws UnknownHostException, UnsupportedEncodingException{
+	//Expected IP 23.50.55.45
+	System.out.println("2d373217");	
+	String ip = getGHostIPfromDebugString("2d373217");
+	System.out.println(ip);	
+	String hex = getDebugStringforGHostIP(ip);
+	System.out.println(hex);
+	
+}
+
+
+public static String getGHostIPfromDebugString(String hexStringIp)
+{
+
+	//Convert hex string to int
+	long intIP = Long.parseLong(hexStringIp, 16);
+	System.out.println(intIP);
+	//Convert int to InetAddress	
+	String ipStr = String.format("%d.%d.%d.%d",
+			         (intIP & 0xff),   
+			         (intIP >> 8 & 0xff),             
+			         (intIP >> 16 & 0xff),    
+			         (intIP >> 24 & 0xff));
+	return ipStr;
+}
+
+public static String getDebugStringforGHostIP(String reqIpAddr){
+	String hex = "";
+	String[] part = reqIpAddr.split("[\\.,]");
+	if (part.length < 4) {
+		return "00000000";
+	}
+	for (int i = 3; i >= 0; i--) {
+		int decimal = Integer.parseInt(part[i]);
+		if (decimal < 16) // Append a 0 to maintian 2 digits for every
+							// number
+		{
+			hex += "0" + String.format("%01X", decimal);
+		} else {
+			hex += String.format("%01X", decimal);
+		}
+	}
+	return hex;
+}
+
+
 
 	public DiagnosticTools(OpenAPI openAPI){
 		this.openAPI=openAPI;
@@ -101,6 +141,8 @@ public TranslatedError doTranslateError(String errorString){
 	Gson gson = new Gson();
 	return gson.fromJson(this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint), TranslatedError.class);
 }
+
+
 
 public LogLines doGetLogLinesFromIP(String ipAddress, String endTime, String arl, String clientIp, String cpCode, String duration, String hostHeader, String httpStatusCode, String logType, String maxLogLines, String objStatus, String requestId, String userAgent){
 	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiDiagnosticToolsGetLogLinesFromIPEndpoint(), "ipAddress", ipAddress);

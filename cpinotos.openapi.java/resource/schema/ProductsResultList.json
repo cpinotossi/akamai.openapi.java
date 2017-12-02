@@ -1,0 +1,12 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "PAPI contract list, result list.",
+    "type": "object",    
+    "properties": {
+      "items": {
+      	"type": "array",
+      	"items":{"$ref": "ProductsResultItem.json"}
+      }
+   },
+   "required": ["items"]
+}

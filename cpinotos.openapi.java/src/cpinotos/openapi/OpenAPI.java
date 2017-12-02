@@ -53,8 +53,8 @@ import ch.qos.logback.classic.Level;
 import cpinotos.openapi.netstorage.NetStorageDirResult;
 import cpinotos.openapi.netstorage.NetStorageDirResultFile;
 import cpinotos.openapi.netstorage.NetStorageDirResultStat;
-import cpinotos.openapi.papi.PapiSearchResult;
 import cpinotos.openapi.services.DiagnosticTools;
+import cpinotos.openapi.services.data.PapiSearchResult;
 import cpinotos.openapi.services.data.UrlDebug;
 
 //import com.akamai.edgeauth.AkamaiTokenConfig;
@@ -94,6 +94,9 @@ public class OpenAPI {
 	@Getter @Setter private String apiPapiGetRuletreeEndpoint;
 	@Getter @Setter private String apiDiagnosticToolsTranslatedErrorEndpoint;
 	@Getter @Setter private String apiDiagnosticToolsGetLogLinesFromIPEndpoint;
+	@Getter @Setter private String apiPapiListCPCodesEndpoint;
+	@Getter @Setter private String apiPapiCreateCPCodesEndpoint;
+	@Getter @Setter private String apiPapiListProductsEndpoint;
 	
 	// Credential objects needed for the different Akamai OPEN API endpoints
 	@Getter @Setter private ClientCredential purgeCredential;
@@ -114,29 +117,19 @@ public class OpenAPI {
 		try {
 			ini = new Wini(new File(propertyFilePath));
 			//api-endpoints
-			this.setApiPurgeInvalidateEndpoint(ini.get("api-endpoints","apiPurgeInvalidateEndpoint"));
-			this.logger.debug("Purge Invalidation Endpoint: " + this.getApiPurgeInvalidateEndpoint());
-			
+			this.setApiPurgeInvalidateEndpoint(ini.get("api-endpoints","apiPurgeInvalidateEndpoint"));			
 			this.setApiPurgeInvalidateCPCodeEndpoint(ini.get("api-endpoints","apiPurgeInvalidateCPCodeEndpoint"));
-			this.logger.debug("Purge Invalidation Endpoint: " + this.getApiPurgeInvalidateEndpoint());
-
 			this.setApiPapiSearchEndpoint(ini.get("api-endpoints","apiPapiSearchEndpoint"));
-			this.logger.debug("API PAPI Search Endpoint: " + this.getApiPapiSearchEndpoint());
-
 			this.setApiPapiGetEndpoint(ini.get("api-endpoints","apiPapiGetEndpoint"));
-			this.logger.debug("API PAPI GET Endpoint: " + this.getApiPapiGetEndpoint());
-
 			this.setApiPapiGetRuletreeEndpoint(ini.get("api-endpoints","apiPapiGetRuletreeEndpoint"));
-			this.logger.debug("API PAPI GET Ruletree Endpoint: " + this.getApiPapiGetRuletreeEndpoint());
-
 			this.setApiDiagnosticToolsUrlDebugEndpoint(ini.get("api-endpoints","apiDiagnosticToolsUrlDebugEndpoint"));
-			this.logger.debug("API Diagnostic Tools Url Debug Endpoint: " + this.getApiDiagnosticToolsUrlDebugEndpoint());
-			
 			this.setApiDiagnosticToolsTranslatedErrorEndpoint(ini.get("api-endpoints","apiDiagnosticToolsTranslatedErrorEndpoint"));
-			this.logger.debug("API Diagnostic Tools Translated Error Endpoint: " + this.getApiDiagnosticToolsTranslatedErrorEndpoint());
-			
 			this.setApiDiagnosticToolsGetLogLinesFromIPEndpoint(ini.get("api-endpoints","apiDiagnosticToolsGetLogLinesFromIPEndpoint"));
-			this.logger.debug("API Diagnostic Tools Get Log Lines by IP Endpoint: " + this.getApiDiagnosticToolsGetLogLinesFromIPEndpoint());
+			this.setApiPapiListCPCodesEndpoint(ini.get("api-endpoints","apiPapiListCPCodesEndpoint"));
+			this.setApiPapiCreateCPCodesEndpoint(ini.get("api-endpoints","apiPapiCreateCPCodesEndpoint"));
+			this.setApiPapiListProductsEndpoint(ini.get("api-endpoints","apiPapiListProductsEndpoint"));
+			
+			
 			
 			//nestorage-upload-account
 			this.setNetstorageClient(ini.get("nestorage-upload-account","client"));
@@ -329,126 +322,6 @@ public class OpenAPI {
 		return edgeauthKey;
 	}
 
-	public PapiSearchResult searchPAPIConfiguration(String host) {
-		PapiSearchResult papiSearchResult = null;
-		//TODO Maybe we should allow different search parameters
-		String searchJSON = "{\"hostname\":\"" + host + "\"}";
-
-		this.logger.debug("searchPAPIConfiguration():" + searchJSON);
-		// Use com.google.api.client.http Helper for HTTP Request
-		HttpTransport httpTransport = new ApacheHttpTransport();
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		URI uri = null;
-		HttpRequest request = null;
-		try {
-			uri = new URI("https", this.getApiHost(), this.getApiPapiSearchEndpoint(), null, null);
-			// Ensure to use Content-Type application/json
-			request = requestFactory.buildPostRequest(new GenericUrl(uri),
-					ByteArrayContent.fromString("application/json", searchJSON));
-			request.setReadTimeout(0);
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getApiCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			String papiSearchResultJson = response.parseAsString();
-			Gson gson = new Gson();
-			papiSearchResult = gson.fromJson(papiSearchResultJson, PapiSearchResult.class);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return papiSearchResult;
-	}
-
-	public PapiSearchResult searchPAPIConfiguration() {
-		return searchPAPIConfiguration(this.getHost());
-	}
-
-	public String getPAPIRuletree(String propertyId, String propertyVersion, String contractId, String groupId,
-			boolean validateRules) {
-		// Use com.google.api.client.http Helper for HTTP Request
-		String papiRuletree = null;
-		HttpTransport httpTransport = new ApacheHttpTransport();
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		URI uri = null;
-		HttpRequest request = null;
-		try {
-			String currentApiPapiEndpoint = this.getApiPapiGetRuletreeEndpoint();
-			currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{propertyVersion}", propertyVersion);
-			currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{propertyId}", propertyId);
-			currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{contractId}", contractId);
-			currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{groupId}", groupId);
-			currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{validateRules}", Boolean.toString(validateRules));
-
-			uri = new URI("https://" + this.getApiHost() + currentApiPapiEndpoint);
-			request = requestFactory.buildGetRequest(new GenericUrl(uri));
-			request.setReadTimeout(0);
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getApiCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			papiRuletree = response.parseAsString();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return papiRuletree;
-
-	}
-
-	public String getPAPIConfiguration(String propertyId, String contractId, String groupId) {
-		String papiGetResultJson = null;
-		HttpTransport httpTransport = new ApacheHttpTransport();
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		URI uri = null;
-		HttpRequest request = null;
-		try {
-			String currentApiPapiGetEndpoint = this.getApiPapiGetEndpoint();
-			currentApiPapiGetEndpoint = currentApiPapiGetEndpoint.replace("{propertyId}", propertyId);
-			currentApiPapiGetEndpoint = currentApiPapiGetEndpoint.replace("{contractId}", contractId);
-			currentApiPapiGetEndpoint = currentApiPapiGetEndpoint.replace("{groupId}", groupId);
-
-			uri = new URI("https://" + this.getApiHost() + currentApiPapiGetEndpoint);
-			request = requestFactory.buildGetRequest(new GenericUrl(uri));
-			request.setReadTimeout(0);
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getApiCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			papiGetResultJson = response.parseAsString();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return papiGetResultJson;
-	}
 
 	public boolean doPurgeInvalidate(String purgeJSON) {
 		return doPurgeInvalidate(purgeJSON, false);
@@ -938,14 +811,46 @@ public class OpenAPI {
 		return jsonResult;
 	}
 	
+	public String doEdgeGridAPIRequestPOST(String apiRequestUrl, String searchJSON) {
+		String jsonResult = null;
+		// Use com.google.api.client.http Helper for HTTP Request
+		HttpTransport httpTransport = new ApacheHttpTransport();
+		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
+		URI uri = null;
+		HttpRequest request = null;
+		try {
+			uri = new URI("https://" + this.getApiHost() + apiRequestUrl);		
+			// Ensure to use Content-Type application/json
+			request = requestFactory.buildPostRequest(new GenericUrl(uri),
+					ByteArrayContent.fromString("application/json", searchJSON));
+			request.setReadTimeout(0);
+			// Create a new EdgeGrid Signer Object
+			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
+					this.getApiCredential());
+			// Sign the request
+			requestSigner.sign(request);
+			// send the request to the OPEN API Interface via HTTP POST
+			HttpResponse response = request.execute();
+			jsonResult = response.parseAsString();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RequestSigningException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return jsonResult;
+	}
+	
 	public static String addValueToAPIEndPointURL(String apiEndPointURL, String key, String value){
 		if(value.isEmpty()){
 			apiEndPointURL = apiEndPointURL.replace("/{"+key+"}", "/");
-			apiEndPointURL = apiEndPointURL.replace("?{"+key+"}", "?");
 			apiEndPointURL = apiEndPointURL.replace("&{"+key+"}", "");			
 		}else{
 			apiEndPointURL = apiEndPointURL.replace("/{"+key+"}", "/"+value);
-			apiEndPointURL = apiEndPointURL.replace("?{"+key+"}", "?"+key+"="+value);
 			apiEndPointURL = apiEndPointURL.replace("&{"+key+"}", "&"+key+"="+value);			
 		}
 		return apiEndPointURL;

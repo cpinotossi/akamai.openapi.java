@@ -1,4 +1,4 @@
-package cpinotos.openapi.papi;
+package cpinotos.openapi.services.data;
 
 public class PapiSearchResult {
 	private PapiSearchResultVersion versions;

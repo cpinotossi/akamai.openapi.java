@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "PAPI Search Result.",
+    "type": "object",    
+    "properties": {
+      "versions": {
+        "$ref": "SearchPropertyVersionsBySingleValueResponseVersionsV0.json"
+       }
+    },
+    "required": [
+        "versions"
+    ]
+}

@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "PAPI CPCode Object",
+    "type": "object",
+    "properties": {
+        "cpcodeId": {"type": "string"},
+        "cpcodeName": {"type": "string"},
+        "productIds": {
+          "type": "array",
+          "productIds": {"type": "string"}
+        },
+        "createdDate": {"type": "string"}
+    },
+    "required": [
+        "cpcodeId","cpcodeName","productIds","createdDate"
+    ]
+}
