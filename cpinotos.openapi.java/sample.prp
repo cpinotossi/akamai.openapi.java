@@ -1,3 +1,4 @@
+#Sample Property
 [nestorage-upload-account]
 #Akamai Netstorage Upload Account User.
 netstorage_client = <INSERT>
