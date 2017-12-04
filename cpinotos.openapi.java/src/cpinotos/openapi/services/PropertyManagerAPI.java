@@ -20,6 +20,7 @@ import cpinotos.openapi.OpenAPI;
 import cpinotos.openapi.services.data.CreateNewCPCodeResultV0;
 import cpinotos.openapi.services.data.ListCPCodeResult;
 import cpinotos.openapi.services.data.LogLines;
+import cpinotos.openapi.services.data.ProductIoT;
 import cpinotos.openapi.services.data.ProductsResult;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseItemV0;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseV0;
@@ -123,13 +124,15 @@ public LogLines doGetLogLinesFromIP(String ipAddress, String endTime, String arl
 	return gson.fromJson(this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint), LogLines.class);
 }
 
-
+/*
+ * No longer needed
 public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration(String host, String searchJSON) {
 	String apiRequestUrl = this.openAPI.getApiPapiSearchEndpoint();
 	String jsonResult = this.openAPI.doEdgeGridAPIRequestPOST(apiRequestUrl, searchJSON);	
 	Gson gson = new Gson();
 	return gson.fromJson(jsonResult, SearchPropertyVersionsBySingleValueResponseV0.class);
 }
+*/
 
 public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration(String host) {
 	String searchJSON = "{\"hostname\":\"" + host + "\"}";
@@ -143,14 +146,28 @@ public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration() {
 	return searchPAPIConfiguration(this.openAPI.getHost());
 }
 
-public String getPAPIRuletree(String propertyId, Integer propertyVersion, String contractId, String groupId,
+public String getPAPIRuletreeAsJSON(String propertyId, Integer propertyVersion, String contractId, String groupId,
 		boolean validateRules) {	
 		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiGetRuletreeEndpoint(), "propertyVersion", propertyVersion.toString());
-		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "propertyId", contractId);
-		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "contractId", groupId);
+		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "propertyId", propertyId);
+		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "contractId", contractId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "groupId", groupId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "validateRules", Boolean.toString(validateRules));
 		return this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+}
+
+public ProductIoT getPAPIRuletree(String propertyId, Integer propertyVersion, String contractId, String groupId,
+		boolean validateRules) {	
+		String jsonResult;
+		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiGetRuletreeEndpoint(), "propertyVersion", propertyVersion.toString());
+		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "propertyId", propertyId);
+		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "contractId", contractId);
+		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "groupId", groupId);
+		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "validateRules", Boolean.toString(validateRules));
+		jsonResult = this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+		Gson gson = new Gson();
+		return gson.fromJson(jsonResult, ProductIoT.class);
+		
 }
 
 public String getPAPIConfiguration(String propertyId, String contractId, String groupId) {

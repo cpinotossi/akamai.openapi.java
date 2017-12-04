@@ -299,13 +299,26 @@ public class OpenAPI {
 
 	}
 	public String getEdgeAuthKeyFromPapiRuleSet(String papiRuleSetJson) {
+		
 		String edgeauthKey = null;
-		String pattern = "<key>(.+?)</key>";
-		Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
-		Matcher m = r.matcher(papiRuleSetJson);
-		m.find();
-		edgeauthKey = m.group(1);
-		this.logger.debug("m.group(1):" + m.group(1));
+		//Try to find inside Advanced Section
+		try{
+			String pattern = "<key>(.+?)</key>";
+			Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+			Matcher m = r.matcher(papiRuleSetJson);
+			m.find();
+			edgeauthKey = m.group(1);
+			this.logger.debug("m.group(1):" + m.group(1));			
+		}catch(java.lang.IllegalStateException e){
+			//Try to find inside JSON
+			String pattern = ".*\"key\".:.\"(.+?)\",.*";
+			Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+			Matcher m = r.matcher(papiRuleSetJson);
+			m.find();
+			edgeauthKey = m.group(1);
+			this.logger.debug("m.group(1):" + m.group(1));
+		}
+
 		return edgeauthKey;
 	}
 

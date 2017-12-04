@@ -1,0 +1,2925 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "properties" : {
+    "rules" : {
+      "$ref" : "#/definitions/toprule"
+    },
+    "comments" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "rules" ],
+  "definitions" : {
+    "toprule" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "behaviors" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/behavior"
+          }
+        },
+        "children" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/rule"
+          }
+        },
+        "options" : {
+          "type" : "object",
+          "properties" : {
+            "is_secure" : {
+              "type" : "boolean"
+            }
+          }
+        },
+        "variables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/variable"
+          }
+        },
+        "advancedOverride" : {
+          "type" : "string"
+        },
+        "customOverride" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            },
+            "overrideId" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "name", "overrideId" ]
+        },
+        "comments" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "name" ]
+    },
+    "rule" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "uuid" : {
+          "type" : "string"
+        },
+        "templateUuid" : {
+          "type" : "string"
+        },
+        "templateLink" : {
+          "type" : "string"
+        },
+        "behaviors" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/behavior"
+          }
+        },
+        "criteria" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/criteria"
+          }
+        },
+        "criteriaMustSatisfy" : {
+          "enum" : [ "all", "any" ],
+          "default" : "all"
+        },
+        "criteriaLocked" : {
+          "type" : "boolean"
+        },
+        "children" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/rule"
+          }
+        },
+        "comments" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "name" ]
+    },
+    "behavior" : {
+      "allOf" : [ {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "enum" : [ "advanced", "aggregatedReporting", "allowPost", "allowTransferEncoding", "cacheError", "cacheKeyIgnoreCase", "cacheKeyQueryParams", "caching", "centralAuthorization", "chaseRedirects", "constructResponse", "cpCode", "customBehavior", "denyAccess", "downloadCompleteMarker", "downloadNotification", "downstreamCache", "edgeConnect", "edgeScape", "enhancedAkamaiProtocol", "fastInvalidate", "http2", "mPulse", "origin", "prefetch", "prefreshCache", "redirectplus", "report", "requestControl", "requestTypeMarker", "setVariable", "siteShield", "sureRoute", "tieredDistribution", "tieredDistributionAdvanced", "uidConfiguration", "verifyTokenAuthorization", "akamaizertag", "edcheader", "enableallmethodscacheh", "edccacheid", "failaction", "audience_segmentation", "modincomingrespheader", "chaseredirects", "mediaclient", "cachekeyignorecase", "elb_origin", "denyaccess", "segmentedcontentprotection", "saasdefinitions", "cacheid", "setresponsecode", "basedir", "ip_geo_access", "asset_prioritization", "elb_data_center", "allowput", "visitor_prioritization", "aic", "removevary", "modincomingreqheader", "token_auth_verify", "realUserAcceleration", "dnsasyncrefresh", "randomseek", "dnsprefresh", "cloudPerformanceIntelligence", "allowpost", "edgeoriginauth", "validateetag", "sim_error_codes", "protocoldowngrade", "sureroute", "networkconditionsheader", "edge_image_converter", "edgescape", "connecttimeout", "refererchecking", "segmentedmediaoptimization", "mediaoriginfailover", "modoutgoingrespheader", "siteshield", "scheduledinvalidation", "watermark_tokens", "prefetching", "readtimeout", "allowpatch", "edgeconnect", "largefileoptimizations", "tiereddistribution", "esi", "rumcustom", "elb_advanced", "bitratelimiting", "construct_response", "rum", "removeqsbyname", "pii", "feo", "cpcode", "pconns", "cacheprefresh", "urlrewrite", "prefetchableobject", "breakconnect", "centralauth", "cache302", "modoutgoingreqheader", "save_post_dca_processing", "imagemanagement", "allowdelete", "mfro", "gzipresponse", "predictivecontentdelivery", "mdc", "conditionalOriginBehavior", "netsession", "edge_redirector", "thirdPartyOptimizer", "postcaching", "cachekeyqueryparams", "clientpconns", "predictiveprefetching", "objectcachingrestrictions", "downstreamcaching", "negativettl", "receiptdelivery", "setresponsecookie", "enhancedakamaiprotocol", "subcustomerenable", "waf", "reporting", "forward_rewrite", "hddata_advanced", "rmaoptimizations", "manifestrerouting", "healthdetect", "tcpoptimizations", "continuousDeployment", "cachekeyrewrite" ]
+          },
+          "options" : {
+            "type" : "object"
+          }
+        },
+        "required" : [ "name", "options" ]
+      }, {
+        "anyOf" : [ {
+          "$ref" : "#/definitions/catalog/behaviors/advanced"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/aggregatedReporting"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/allowPost"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/allowTransferEncoding"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/cacheError"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/cacheKeyIgnoreCase"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/cacheKeyQueryParams"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/caching"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/centralAuthorization"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/chaseRedirects"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/constructResponse"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/cpCode"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/customBehavior"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/denyAccess"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/downloadCompleteMarker"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/downloadNotification"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/downstreamCache"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/edgeConnect"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/edgeScape"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/enhancedAkamaiProtocol"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/fastInvalidate"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/http2"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/mPulse"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/origin"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/prefetch"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/prefreshCache"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/redirectplus"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/report"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/requestControl"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/requestTypeMarker"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/setVariable"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/siteShield"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/sureRoute"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/tieredDistribution"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/tieredDistributionAdvanced"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/uidConfiguration"
+        }, {
+          "$ref" : "#/definitions/catalog/behaviors/verifyTokenAuthorization"
+        } ]
+      } ]
+    },
+    "criteria" : {
+      "allOf" : [ {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "enum" : [ "bucket", "cacheability", "clientIp", "clientIpVersion", "contentDeliveryNetwork", "contentType", "fileExtension", "filename", "hostname", "matchAdvanced", "matchResponseCode", "matchVariable", "metadataStage", "path", "queryStringParameter", "random", "regularExpression", "requestCookie", "requestHeader", "requestMethod", "requestProtocol", "requestType", "responseHeader", "time", "tokenAuthorization", "userAgent", "userLocation", "userNetwork", "variableError", "hoit", "requestmethod", "matchcpcode", "useragent", "regularexpression", "responseheader", "wildcard", "advancedmatch", "requesttype", "clientip", "requestcookie", "ext", "responsecode", "conditionalOriginId", "requestprotocol", "querystring", "usernetwork", "metadatastage", "network_match", "contenttype", "userlocation", "devicecharacteristics", "clientipversion", "origintimeout", "requestheader", "token_auth_match" ]
+          },
+          "options" : {
+            "type" : "object"
+          }
+        },
+        "required" : [ "name", "options" ]
+      }, {
+        "anyOf" : [ {
+          "$ref" : "#/definitions/catalog/criteria/bucket"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/cacheability"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/clientIp"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/clientIpVersion"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/contentDeliveryNetwork"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/contentType"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/fileExtension"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/filename"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/hostname"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/matchAdvanced"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/matchResponseCode"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/matchVariable"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/metadataStage"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/path"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/queryStringParameter"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/random"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/regularExpression"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/requestCookie"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/requestHeader"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/requestMethod"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/requestProtocol"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/requestType"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/responseHeader"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/time"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/tokenAuthorization"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/userAgent"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/userLocation"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/userNetwork"
+        }, {
+          "$ref" : "#/definitions/catalog/criteria/variableError"
+        } ]
+      } ]
+    },
+    "variable" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "catalog" : {
+      "behaviors" : {
+        "advanced" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "advanced" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "description" : {
+                  "type" : "string"
+                },
+                "xml" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "aggregatedReporting" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "aggregatedReporting" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "reportName" : {
+                  "type" : "string",
+                  "default" : ""
+                },
+                "attributesCount" : {
+                  "type" : "number",
+                  "minimum" : 1,
+                  "maximum" : 4,
+                  "default" : 4
+                },
+                "attribute1" : {
+                  "type" : "string",
+                  "default" : ""
+                },
+                "attribute2" : {
+                  "type" : "string",
+                  "default" : ""
+                },
+                "attribute3" : {
+                  "type" : "string",
+                  "default" : ""
+                },
+                "attribute4" : {
+                  "type" : "string",
+                  "default" : ""
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "allowPost" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "allowPost", "allowpost" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "allowWithoutContentLength" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "allowTransferEncoding" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "allowTransferEncoding" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "cacheError" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "cacheError", "negativettl" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "ttl" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration",
+                  "default" : "10s"
+                },
+                "preserveStale" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "cacheKeyIgnoreCase" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "cacheKeyIgnoreCase", "cachekeyignorecase" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "cacheKeyQueryParams" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "cacheKeyQueryParams", "cachekeyqueryparams" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "behavior" : {
+                  "enum" : [ "INCLUDE_ALL_PRESERVE_ORDER", "INCLUDE_ALL_ALPHABETIZE_ORDER", "IGNORE_ALL", "INCLUDE", "IGNORE" ],
+                  "default" : "INCLUDE_ALL_PRESERVE_ORDER"
+                },
+                "parameters" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "exactMatch" : {
+                  "enum" : [ true, false ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "caching" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "caching" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "behavior" : {
+                  "enum" : [ "MAX_AGE", "NO_STORE", "BYPASS_CACHE", "CACHE_CONTROL_AND_EXPIRES", "CACHE_CONTROL", "EXPIRES" ],
+                  "default" : "MAX_AGE"
+                },
+                "mustRevalidate" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "ttl" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration"
+                },
+                "defaultTtl" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "centralAuthorization" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "centralAuthorization", "centralauth" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "chaseRedirects" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "chaseRedirects", "chaseredirects" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "limit" : {
+                  "type" : "string",
+                  "default" : "4"
+                },
+                "serve404" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "constructResponse" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "constructResponse", "construct_response" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "body" : {
+                  "type" : "string"
+                },
+                "responseCode" : {
+                  "enum" : [ 200, 404 ],
+                  "default" : 200
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "cpCode" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "cpCode", "cpcode" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "value" : {
+                  "$ref" : "#/definitions/catalog/option_types/cpcode"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "customBehavior" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "customBehavior" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "behaviorId" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "denyAccess" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "denyAccess", "denyaccess" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "reason" : {
+                  "type" : "string",
+                  "default" : "default-deny-reason"
+                },
+                "enabled" : {
+                  "enum" : [ true, false ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "downloadCompleteMarker" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "downloadCompleteMarker" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : { }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "downloadNotification" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "downloadNotification" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : { }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "downstreamCache" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "downstreamCache", "downstreamcaching" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "behavior" : {
+                  "enum" : [ "ALLOW", "MUST_REVALIDATE", "BUST", "TUNNEL_ORIGIN", "NONE" ],
+                  "default" : "ALLOW"
+                },
+                "allowBehavior" : {
+                  "enum" : [ "LESSER", "GREATER", "REMAINING_LIFETIME", "FROM_MAX_AGE", "FROM_VALUE", "PASS_ORIGIN" ],
+                  "default" : "LESSER"
+                },
+                "ttl" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration"
+                },
+                "sendHeaders" : {
+                  "enum" : [ "CACHE_CONTROL_AND_EXPIRES", "CACHE_CONTROL", "EXPIRES", "PASS_ORIGIN" ],
+                  "default" : "CACHE_CONTROL_AND_EXPIRES"
+                },
+                "sendPrivate" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "edgeConnect" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "edgeConnect", "edgeconnect" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "apiConnector" : {
+                  "enum" : [ "DEFAULT", "SIEM_JSON", "BMC_APM" ],
+                  "default" : "DEFAULT"
+                },
+                "apiDataElements" : {
+                  "$ref" : "#/definitions/catalog/option_types/list",
+                  "default" : "HTTP"
+                },
+                "destinationHostname" : {
+                  "type" : "string"
+                },
+                "destinationPath" : {
+                  "type" : "string"
+                },
+                "overrideAggregateSettings" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "aggregateTime" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration",
+                  "default" : "15s"
+                },
+                "aggregateLines" : {
+                  "type" : "string",
+                  "default" : "2000"
+                },
+                "aggregateSize" : {
+                  "type" : "string",
+                  "default" : "1000KB"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "edgeScape" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "edgeScape", "edgescape" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "enhancedAkamaiProtocol" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "enhancedAkamaiProtocol", "enhancedakamaiprotocol" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : { }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "fastInvalidate" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "fastInvalidate" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "http2" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "http2" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : { }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "mPulse" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "mPulse" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "apiKey" : {
+                  "type" : "string"
+                },
+                "bufferSize" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "origin" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "origin" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "originType" : {
+                  "enum" : [ "CUSTOMER", "NET_STORAGE", "MEDIA_SERVICE_LIVE", "EDGE_LOAD_BALANCING_ORIGIN_GROUP", "SAAS_DYNAMIC_ORIGIN" ],
+                  "default" : "CUSTOMER"
+                },
+                "netStorage" : {
+                  "$ref" : "#/definitions/catalog/option_types/netstorage"
+                },
+                "originId" : {
+                  "type" : "string"
+                },
+                "hostname" : {
+                  "type" : "string"
+                },
+                "mslorigin" : {
+                  "type" : "string"
+                },
+                "saasType" : {
+                  "enum" : [ "HOSTNAME", "PATH", "QUERY_STRING", "COOKIE" ],
+                  "default" : "HOSTNAME"
+                },
+                "saasCnameEnabled" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "saasCnameLevel" : {
+                  "type" : "number",
+                  "default" : 1
+                },
+                "saasCookie" : {
+                  "type" : "string"
+                },
+                "saasQueryString" : {
+                  "type" : "string"
+                },
+                "saasRegex" : {
+                  "type" : "string"
+                },
+                "saasReplace" : {
+                  "type" : "string"
+                },
+                "saasSuffix" : {
+                  "type" : "string"
+                },
+                "forwardHostHeader" : {
+                  "enum" : [ "REQUEST_HOST_HEADER", "ORIGIN_HOSTNAME", "CUSTOM" ],
+                  "default" : "REQUEST_HOST_HEADER"
+                },
+                "customForwardHostHeader" : {
+                  "type" : "string"
+                },
+                "cacheKeyHostname" : {
+                  "enum" : [ "REQUEST_HOST_HEADER", "ORIGIN_HOSTNAME" ],
+                  "default" : "ORIGIN_HOSTNAME"
+                },
+                "compress" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "enableTrueClientIp" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "trueClientIpHeader" : {
+                  "type" : "string",
+                  "default" : "True-Client-IP"
+                },
+                "trueClientIpClientSetting" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "verificationMode" : {
+                  "enum" : [ "PLATFORM_SETTINGS", "CUSTOM", "THIRD_PARTY" ],
+                  "default" : "PLATFORM_SETTINGS"
+                },
+                "originSni" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "customValidCnValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list",
+                  "default" : [ "{{Origin Hostname}}", "{{Forward Host Header}}" ]
+                },
+                "originCertsToHonor" : {
+                  "enum" : [ "COMBO", "STANDARD_CERTIFICATE_AUTHORITIES", "CUSTOM_CERTIFICATE_AUTHORITIES", "CUSTOM_CERTIFICATES" ],
+                  "default" : "STANDARD_CERTIFICATE_AUTHORITIES"
+                },
+                "standardCertificateAuthorities" : {
+                  "$ref" : "#/definitions/catalog/option_types/casetlist",
+                  "default" : [ "akamai-permissive" ]
+                },
+                "customCertificateAuthorities" : {
+                  "$ref" : "#/definitions/catalog/option_types/sslcertlist",
+                  "default" : [ ]
+                },
+                "customCertificates" : {
+                  "$ref" : "#/definitions/catalog/option_types/sslcertlist",
+                  "default" : [ ]
+                },
+                "httpPort" : {
+                  "type" : "number",
+                  "default" : 80
+                },
+                "httpsPort" : {
+                  "type" : "number",
+                  "default" : 443
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "prefetch" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "prefetch", "prefetching" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "prefreshCache" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "prefreshCache", "cacheprefresh" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "prefreshval" : {
+                  "type" : "number",
+                  "minimum" : 0,
+                  "maximum" : 99,
+                  "default" : 90
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "redirectplus" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "redirectplus" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "destination" : {
+                  "type" : "string",
+                  "default" : "{{builtin.AK_SCHEME}}://{{builtin.AK_HOST}}{{builtin.AK_PATH}}"
+                },
+                "responseCode" : {
+                  "enum" : [ 301, 302, 303, 307 ],
+                  "default" : 302
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "report" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "report", "reporting" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "logHost" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "logReferer" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "logUserAgent" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "logAcceptLanguage" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "logCookies" : {
+                  "enum" : [ "OFF", "ALL", "SOME" ],
+                  "default" : "OFF"
+                },
+                "cookies" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "requestControl" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "requestControl", "ip_geo_access" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "cloudletPolicy" : {
+                  "$ref" : "#/definitions/catalog/option_types/cloudletconfig"
+                },
+                "enableBranded403" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "branded403StatusCode" : {
+                  "enum" : [ 200, 302, 403, 503 ],
+                  "default" : 403
+                },
+                "netStorage" : {
+                  "$ref" : "#/definitions/catalog/option_types/netstorage"
+                },
+                "branded403File" : {
+                  "type" : "string"
+                },
+                "branded403Url" : {
+                  "type" : "string"
+                },
+                "brandedDenyCacheTtl" : {
+                  "type" : "number",
+                  "minimum" : 5,
+                  "maximum" : 30,
+                  "default" : 5
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "requestTypeMarker" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "requestTypeMarker" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "requestType" : {
+                  "enum" : [ "DOWNLOAD", "CAMPAIGN_SERVER" ],
+                  "default" : "CAMPAIGN_SERVER"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "setVariable" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "setVariable" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "variableName" : {
+                  "$ref" : "#/definitions/catalog/option_types/variable"
+                },
+                "valueSource" : {
+                  "enum" : [ "EXPRESSION", "EXTRACT", "GENERATE" ],
+                  "default" : "EXPRESSION"
+                },
+                "variableValue" : {
+                  "type" : "string"
+                },
+                "extractLocation" : {
+                  "enum" : [ "CLIENT_CERTIFICATE", "CLIENT_REQUEST_HEADER", "COOKIE", "EDGESCAPE", "PATH_COMPONENT_OFFSET", "QUERY_STRING" ],
+                  "default" : "CLIENT_REQUEST_HEADER"
+                },
+                "certificateFieldName" : {
+                  "enum" : [ "VERSION", "SERIAL", "FINGERPRINT_MD5", "FINGERPRINT_SHA1", "FINGERPRINT_DYN", "ISSUER_DN", "SUBJECT_DN", "NOT_BEFORE", "NOT_AFTER", "SIGNATURE_ALGORITHM", "SIGNATURE", "CONTENTS_DER", "CONTENTS_PEM", "CONTENTS_PEM_NO_LABELS", "COUNT", "STATUS_MSG", "KEY_LENGTH" ],
+                  "default" : "KEY_LENGTH"
+                },
+                "headerName" : {
+                  "type" : "string"
+                },
+                "cookieName" : {
+                  "type" : "string"
+                },
+                "locationId" : {
+                  "enum" : [ "GEOREGION", "COUNTRY_CODE", "REGION_CODE", "CITY", "DMA", "PMSA", "MSA", "AREACODE", "COUNTY", "FIPS", "LAT", "LONG", "TIMEZONE", "ZIP", "CONTINENT", "NETWORK", "NETWORK_TYPE", "ASNUM", "THROUGHPUT", "BW" ],
+                  "default" : "COUNTRY_CODE"
+                },
+                "pathComponentOffset" : {
+                  "type" : "string"
+                },
+                "queryParameterName" : {
+                  "type" : "string"
+                },
+                "generator" : {
+                  "enum" : [ "HEXRAND", "RAND" ],
+                  "default" : "RAND"
+                },
+                "numberOfBytes" : {
+                  "type" : "number",
+                  "minimum" : 1,
+                  "maximum" : 16,
+                  "default" : 16
+                },
+                "minRandomNumber" : {
+                  "type" : "string",
+                  "default" : "0"
+                },
+                "maxRandomNumber" : {
+                  "type" : "string",
+                  "default" : "4294967295"
+                },
+                "transform" : {
+                  "enum" : [ "NONE", "ADD", "BASE_64_DECODE", "BASE_64_ENCODE", "BITWISE_AND", "BITWISE_NOT", "BITWISE_OR", "BITWISE_XOR", "DECIMAL_TO_HEX", "DECRYPT", "DIVIDE", "ENCRYPT", "EPOCH_TO_STRING", "EXTRACT_PARAM", "HASH", "HEX_TO_DECIMAL", "HEX_DECODE", "HEX_ENCODE", "HMAC", "LOWER", "MD5", "MINUS", "MODULO", "MULTIPLY", "NORMALIZE_PATH_WIN", "REMOVE_WHITESPACE", "SHA_1", "SHA_256", "STRING_INDEX", "STRING_LENGTH", "STRING_TO_EPOCH", "SUBSTITUTE", "SUBSTRING", "SUBTRACT", "TRIM", "UPPER", "URL_DECODE", "URL_ENCODE", "URL_DECODE_UNI", "UTC_SECONDS", "XML_DECODE", "XML_ENCODE" ],
+                  "default" : "NONE"
+                },
+                "operandOne" : {
+                  "type" : "string"
+                },
+                "algorithm" : {
+                  "enum" : [ "ALG_3DES", "ALG_AES128", "ALG_AES256" ],
+                  "default" : "ALG_3DES"
+                },
+                "encryptionKey" : {
+                  "type" : "string"
+                },
+                "initializationVector" : {
+                  "type" : "string"
+                },
+                "encryptionMode" : {
+                  "enum" : [ "CBC", "ECB" ],
+                  "default" : "CBC"
+                },
+                "nonce" : {
+                  "type" : "string"
+                },
+                "prependBytes" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "formatString" : {
+                  "type" : "string"
+                },
+                "paramName" : {
+                  "type" : "string"
+                },
+                "separator" : {
+                  "type" : "string"
+                },
+                "min" : {
+                  "type" : "number",
+                  "default" : 0
+                },
+                "max" : {
+                  "type" : "number",
+                  "default" : 4294967294
+                },
+                "hmacKey" : {
+                  "type" : "string"
+                },
+                "hmacAlgorithm" : {
+                  "enum" : [ "SHA1", "SHA256", "MD5" ],
+                  "default" : "SHA1"
+                },
+                "ipVersion" : {
+                  "enum" : [ "IPV4", "IPV6" ],
+                  "default" : "IPV4"
+                },
+                "ipv6Prefix" : {
+                  "type" : "number",
+                  "minimum" : 0,
+                  "maximum" : 128,
+                  "default" : 128
+                },
+                "ipv4Prefix" : {
+                  "type" : "number",
+                  "minimum" : 0,
+                  "maximum" : 32,
+                  "default" : 32
+                },
+                "subString" : {
+                  "type" : "string"
+                },
+                "regex" : {
+                  "type" : "string"
+                },
+                "replacement" : {
+                  "type" : "string"
+                },
+                "caseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "globalSubstitution" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "startIndex" : {
+                  "type" : "string"
+                },
+                "endIndex" : {
+                  "type" : "string"
+                },
+                "exceptChars" : {
+                  "type" : "string"
+                },
+                "forceChars" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "siteShield" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "siteShield", "siteshield" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "ssmap" : {
+                  "$ref" : "#/definitions/catalog/option_types/siteshield"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "sureRoute" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "sureRoute", "sureroute" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "type" : {
+                  "enum" : [ "PERFORMANCE", "CUSTOM_MAP" ],
+                  "default" : "PERFORMANCE"
+                },
+                "customMap" : {
+                  "type" : "string"
+                },
+                "testObjectUrl" : {
+                  "type" : "string"
+                },
+                "toHostStatus" : {
+                  "enum" : [ "INCOMING_HH", "OTHER" ],
+                  "default" : "INCOMING_HH"
+                },
+                "toHost" : {
+                  "type" : "string"
+                },
+                "raceStatTtl" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration",
+                  "default" : "30m"
+                },
+                "forceSslForward" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "enableCustomKey" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "customStatKey" : {
+                  "type" : "string",
+                  "default" : ""
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "tieredDistribution" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "tieredDistribution", "tiereddistribution" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "tieredDistributionMap" : {
+                  "enum" : [ "CH2", "CHAPAC", "CHEU2", "CHEUS2", "CHCUS2", "CHWUS2", "CHAUS", "CH" ],
+                  "default" : "CH2"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "tieredDistributionAdvanced" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "tieredDistributionAdvanced" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "method" : {
+                  "enum" : [ "SERIAL_PREPEND", "DOMAIN_LOOKUP" ],
+                  "default" : "SERIAL_PREPEND"
+                },
+                "policy" : {
+                  "enum" : [ "PERFORMANCE", "TIERED_DISTRIBUTION", "FAIL_OVER", "SITE_SHIELD", "SITE_SHIELD_PERFORMANCE" ],
+                  "default" : "PERFORMANCE"
+                },
+                "tieredDistributionMap" : {
+                  "type" : "string",
+                  "default" : "ch2"
+                },
+                "allowall" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "uidConfiguration" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "uidConfiguration" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "enabled" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "extractLocation" : {
+                  "enum" : [ "CLIENT_REQUEST_HEADER", "QUERY_STRING", "VARIABLE" ],
+                  "default" : "CLIENT_REQUEST_HEADER"
+                },
+                "headerName" : {
+                  "type" : "string"
+                },
+                "queryParameterName" : {
+                  "type" : "string"
+                },
+                "variableName" : {
+                  "$ref" : "#/definitions/catalog/option_types/variable"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "verifyTokenAuthorization" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "verifyTokenAuthorization", "token_auth_verify" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "useAdvanced" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "location" : {
+                  "enum" : [ "COOKIE", "QUERY_STRING", "CLIENT_REQUEST_HEADER" ],
+                  "default" : "COOKIE"
+                },
+                "locationId" : {
+                  "type" : "string",
+                  "default" : "__token__"
+                },
+                "algorithm" : {
+                  "enum" : [ "SHA256", "SHA1", "MD5" ],
+                  "default" : "SHA256"
+                },
+                "escapeHmacInputs" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "ignoreQueryString" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "key" : {
+                  "$ref" : "#/definitions/catalog/option_types/random"
+                },
+                "transitionKey" : {
+                  "$ref" : "#/definitions/catalog/option_types/random"
+                },
+                "salt" : {
+                  "$ref" : "#/definitions/catalog/option_types/random"
+                },
+                "failureResponse" : {
+                  "enum" : [ true, false ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        }
+      },
+      "criteria" : {
+        "bucket" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "bucket" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "percentage" : {
+                  "type" : "number",
+                  "minimum" : 0,
+                  "maximum" : 100,
+                  "default" : 100
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "cacheability" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "cacheability" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS", "IS_NOT" ],
+                  "default" : "IS"
+                },
+                "value" : {
+                  "enum" : [ "NO_STORE", "BYPASS_CACHE", "CACHEABLE" ],
+                  "default" : "CACHEABLE"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "clientIp" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "clientIp", "clientip" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "useHeaders" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "clientIpVersion" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "clientIpVersion", "clientipversion" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "value" : {
+                  "enum" : [ "IPV4", "IPV6" ],
+                  "default" : "IPV4"
+                },
+                "useXForwardedFor" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "contentDeliveryNetwork" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "contentDeliveryNetwork", "network_match" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS", "IS_NOT" ],
+                  "default" : "IS"
+                },
+                "network" : {
+                  "enum" : [ "STAGING", "PRODUCTION" ],
+                  "default" : "STAGING"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "contentType" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "contentType", "contenttype" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list",
+                  "default" : [ "text/html*" ]
+                },
+                "matchWildcard" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "matchCaseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "fileExtension" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "fileExtension", "ext" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "matchCaseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "filename" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "filename" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF", "IS_EMPTY", "IS_NOT_EMPTY" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "matchCaseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "hostname" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "hostname", "hoit" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "matchAdvanced" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "matchAdvanced", "advancedmatch" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "description" : {
+                  "type" : "string"
+                },
+                "openXml" : {
+                  "type" : "string"
+                },
+                "closeXml" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "matchResponseCode" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "matchResponseCode", "responsecode" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF", "IS_BETWEEN", "IS_NOT_BETWEEN" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "lowerBound" : {
+                  "type" : "number"
+                },
+                "upperBound" : {
+                  "type" : "number"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "matchVariable" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "matchVariable" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "variableName" : {
+                  "$ref" : "#/definitions/catalog/option_types/variable"
+                },
+                "matchOperator" : {
+                  "enum" : [ "IS", "IS_NOT", "IS_ONE_OF", "IS_NOT_ONE_OF", "IS_EMPTY", "IS_NOT_EMPTY", "IS_BETWEEN", "IS_NOT_BETWEEN", "IS_GREATER_THAN", "IS_GREATER_THAN_OR_EQUAL_TO", "IS_LESS_THAN", "IS_LESS_THAN_OR_EQUAL_TO" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "variableValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "variableExpression" : {
+                  "type" : "string"
+                },
+                "lowerBound" : {
+                  "type" : "string"
+                },
+                "upperBound" : {
+                  "type" : "string"
+                },
+                "matchWildcard" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchCaseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "metadataStage" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "metadataStage", "metadatastage" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS", "IS_NOT" ],
+                  "default" : "IS"
+                },
+                "value" : {
+                  "enum" : [ "cache-hit", "client-done", "client-request", "client-request-body", "client-response", "content-policy", "forward-request", "forward-response", "forward-start", "ipa-response" ],
+                  "default" : "client-request"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "path" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "path", "wildcard" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "MATCHES_ONE_OF", "DOES_NOT_MATCH_ONE_OF" ],
+                  "default" : "MATCHES_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "matchCaseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "queryStringParameter" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "queryStringParameter", "querystring" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "parameterName" : {
+                  "type" : "string"
+                },
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF", "EXISTS", "DOES_NOT_EXIST", "IS_LESS_THAN", "IS_MORE_THAN", "IS_BETWEEN" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "lowerBound" : {
+                  "type" : "number"
+                },
+                "upperBound" : {
+                  "type" : "number"
+                },
+                "matchWildcardName" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchCaseSensitiveName" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "matchWildcardValue" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchCaseSensitiveValue" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "escapeValue" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "random" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "random" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "bucket" : {
+                  "type" : "number",
+                  "minimum" : 0,
+                  "maximum" : 100,
+                  "default" : 100
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "regularExpression" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "regularExpression", "regularexpression" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchString" : {
+                  "type" : "string",
+                  "default" : ""
+                },
+                "regex" : {
+                  "type" : "string",
+                  "default" : ""
+                },
+                "caseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "requestCookie" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "requestCookie", "requestcookie" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "cookieName" : {
+                  "type" : "string"
+                },
+                "matchOperator" : {
+                  "enum" : [ "IS", "IS_NOT", "EXISTS", "DOES_NOT_EXIST", "IS_BETWEEN" ],
+                  "default" : "IS"
+                },
+                "value" : {
+                  "type" : "string"
+                },
+                "lowerBound" : {
+                  "type" : "number"
+                },
+                "upperBound" : {
+                  "type" : "number"
+                },
+                "matchWildcardName" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchCaseSensitiveName" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "matchWildcardValue" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchCaseSensitiveValue" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "requestHeader" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "requestHeader", "requestheader" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "headerName" : {
+                  "type" : "string"
+                },
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF", "EXISTS", "DOES_NOT_EXIST" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "matchWildcardName" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchWildcardValue" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchCaseSensitiveValue" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "requestMethod" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "requestMethod", "requestmethod" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS", "IS_NOT" ],
+                  "default" : "IS"
+                },
+                "value" : {
+                  "enum" : [ "GET", "POST", "HEAD", "PUT", "PATCH", "HTTP_DELETE", "AKAMAI_TRANSLATE", "AKAMAI_PURGE", "OPTIONS", "DAV_ACL", "DAV_CHECKOUT", "DAV_COPY", "DAV_DMCREATE", "DAV_DMINDEX", "DAV_DMMKPATH", "DAV_DMMKPATHS", "DAV_DMOVERLAY", "DAV_DMPATCHPATHS", "DAV_LOCK", "DAV_MERGE", "DAV_MKACTIVITY", "DAV_MKCALENDAR", "DAV_MKCOL", "DAV_MOVE", "DAV_PROPFIND", "DAV_PROPPATCH", "DAV_REPORT", "DAV_SETPROCESS", "DAV_SETREDIRECT", "DAV_TRUTHGET", "DAV_UNLOCK" ],
+                  "default" : "GET"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "requestProtocol" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "requestProtocol", "requestprotocol" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "value" : {
+                  "enum" : [ "HTTP", "HTTPS" ],
+                  "default" : "HTTP"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "requestType" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "requestType", "requesttype" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS", "IS_NOT" ],
+                  "default" : "IS"
+                },
+                "value" : {
+                  "enum" : [ "CLIENT_REQ", "ESI_FRAGMENT" ],
+                  "default" : "CLIENT_REQ"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "responseHeader" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "responseHeader", "responseheader" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "headerName" : {
+                  "type" : "string"
+                },
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF", "EXISTS", "DOES_NOT_EXIST", "IS_LESS_THAN", "IS_MORE_THAN", "IS_BETWEEN" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "lowerBound" : {
+                  "type" : "number"
+                },
+                "upperBound" : {
+                  "type" : "number"
+                },
+                "matchWildcardName" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchWildcardValue" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                },
+                "matchCaseSensitiveValue" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "time" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "time" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "BEGINNING", "BETWEEN", "LASTING", "REPEATING" ],
+                  "default" : "BEGINNING"
+                },
+                "repeatInterval" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration",
+                  "default" : "1d"
+                },
+                "repeatDuration" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration",
+                  "default" : "1d"
+                },
+                "lastingDuration" : {
+                  "$ref" : "#/definitions/catalog/option_types/duration",
+                  "default" : "1d"
+                },
+                "lastingDate" : {
+                  "$ref" : "#/definitions/catalog/option_types/datetimezone"
+                },
+                "repeatBeginDate" : {
+                  "$ref" : "#/definitions/catalog/option_types/datetimezone"
+                },
+                "applyDaylightSavingsTime" : {
+                  "enum" : [ true, false ],
+                  "default" : true
+                },
+                "beginDate" : {
+                  "$ref" : "#/definitions/catalog/option_types/datetimezone"
+                },
+                "endDate" : {
+                  "$ref" : "#/definitions/catalog/option_types/datetimezone"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "tokenAuthorization" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "tokenAuthorization", "token_auth_match" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_SUCCESS", "IS_CUSTOM_FAILURE", "IS_ANY_FAILURE" ],
+                  "default" : "IS_ANY_FAILURE"
+                },
+                "statusList" : {
+                  "$ref" : "#/definitions/catalog/option_types/list",
+                  "default" : [ "INVALID_HMAC_KEY", "INVALID_DELIMITER", "INVALID_ACL_DELIMITER", "INVALID_IP", "INVALID_URL", "MISSING_EXPIRATION_TIME", "NEED_URL_XOR_ACL", "UNSUPPORTED_VERSION", "MISSING_TOKEN", "MISSING_URL", "INVALID_TOKEN", "INVALID_HMAC", "TOKEN_NOT_VALID_YET", "EXPIRED_TOKEN", "UNAUTHORIZED_IP", "UNAUTHORIZED_URL", "INVALID_EXPIRATION_TIME" ]
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "userAgent" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "userAgent", "useragent" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "values" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "matchWildcard" : {
+                  "enum" : [ false, true ],
+                  "default" : true
+                },
+                "matchCaseSensitive" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "userLocation" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "userLocation", "userlocation" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "field" : {
+                  "enum" : [ "COUNTRY", "CONTINENT", "REGION" ],
+                  "default" : "COUNTRY"
+                },
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "countryValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "continentValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "regionValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "checkIps" : {
+                  "enum" : [ "BOTH", "CONNECTING", "HEADERS" ],
+                  "default" : "BOTH"
+                },
+                "useOnlyFirstXForwardedForIp" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "userNetwork" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "userNetwork", "usernetwork" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "field" : {
+                  "enum" : [ "NETWORK", "NETWORK_TYPE", "BANDWIDTH" ],
+                  "default" : "NETWORK"
+                },
+                "matchOperator" : {
+                  "enum" : [ "IS_ONE_OF", "IS_NOT_ONE_OF" ],
+                  "default" : "IS_ONE_OF"
+                },
+                "networkTypeValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "networkValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "bandwidthValues" : {
+                  "$ref" : "#/definitions/catalog/option_types/list"
+                },
+                "checkIps" : {
+                  "enum" : [ "BOTH", "CONNECTING", "HEADERS" ],
+                  "default" : "BOTH"
+                },
+                "useOnlyFirstXForwardedForIp" : {
+                  "enum" : [ false, true ],
+                  "default" : false
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        },
+        "variableError" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "enum" : [ "variableError" ]
+            },
+            "uuid" : {
+              "type" : "string"
+            },
+            "templateUuid" : {
+              "type" : "string"
+            },
+            "options" : {
+              "type" : "object",
+              "properties" : {
+                "result" : {
+                  "enum" : [ true, false ],
+                  "default" : true
+                },
+                "variableNames" : {
+                  "$ref" : "#/definitions/catalog/option_types/variableList"
+                }
+              }
+            },
+            "locked" : {
+              "type" : [ "null", "boolean" ]
+            }
+          }
+        }
+      },
+      "option_types" : {
+        "cpcode" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "number"
+            }
+          },
+          "required" : [ "id" ]
+        },
+        "netstorage" : {
+          "type" : "object"
+        },
+        "duration" : {
+          "type" : "string",
+          "pattern" : "^[0-9]+[DdHhMmSs]$"
+        },
+        "datetimezone" : {
+          "type" : "string"
+        },
+        "date" : {
+          "type" : "string"
+        },
+        "variable" : {
+          "type" : "string"
+        },
+        "random" : {
+          "type" : "string"
+        },
+        "variableList" : {
+          "anyOf" : [ {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "list" : {
+          "anyOf" : [ {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }, {
+            "type" : "string"
+          } ]
+        },
+        "casetlist" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "sslcertlist" : {
+          "type" : "array",
+          "items" : {
+            "type" : "object"
+          }
+        },
+        "wafconfig" : {
+          "type" : "object"
+        },
+        "siteshield" : {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            },
+            "value" : {
+              "type" : "string"
+            },
+            "srmap" : {
+              "type" : "string"
+            }
+          }
+        },
+        "imageManagementApiKey" : {
+          "type" : "string"
+        },
+        "imageManagementApiNewKey" : {
+          "type" : "string"
+        },
+        "cloudletconfig" : {
+          "type" : "object",
+          "properties" : {
+            "id" : {
+              "type" : "number"
+            },
+            "name" : {
+              "type" : "string"
+            }
+          }
+        },
+        "rapidconfig" : {
+          "type" : "array"
+        }
+      }
+    }
+  }
+}

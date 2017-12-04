@@ -4,14 +4,18 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
+import java.util.TreeMap;
 
 //import com.akamai.edgeauth.AkamaiTokenConfig;
 //import com.akamai.edgeauth.AkamaiTokenGenerator;
 import com.beust.jcommander.JCommander;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.internal.LinkedTreeMap;
 
 import ch.qos.logback.classic.Level;
 import cpinotos.openapi.cli.CommandDU;
@@ -32,10 +36,12 @@ import cpinotos.openapi.cli.Commands;
 import cpinotos.openapi.netstorage.NetStorageDirResultStat;
 import cpinotos.openapi.services.DiagnosticTools;
 import cpinotos.openapi.services.PropertyManagerAPI;
+import cpinotos.openapi.services.data.Child;
 import cpinotos.openapi.services.data.CreateNewCPCodeResultV0;
 import cpinotos.openapi.services.data.ListCPCode;
 import cpinotos.openapi.services.data.ListCPCodeResult;
 import cpinotos.openapi.services.data.LogLines;
+import cpinotos.openapi.services.data.ProductIoT;
 import cpinotos.openapi.services.data.ProductsResult;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseItemV0;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseV0;
@@ -150,20 +156,46 @@ public class OpenCLI {
 			//TODO Handle exception no config for provided hostname
 			SearchPropertyVersionsBySingleValueResponseItemV0 psri = psr.getVersions().getItems().get(0);
 			openAPI.logger.info("edgeURL:step2/7: found Property Configuration "+ psri.getPropertyName() +"  version "+ psri.getPropertyVersion());
-			String prt = papi.getPAPIRuletree(psri.getPropertyId(), psri.getPropertyVersion(), psri.getContractId(),
+			String prt = papi.getPAPIRuletreeAsJSON(psri.getPropertyId(), psri.getPropertyVersion(), psri.getContractId(),
 					psri.getGroupId(), false);
 			openAPI.logger.info("edgeURL:step3/7: downloaded Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
-			openAPI.logger.debug(prt);
+			openAPI.logger.debug(prt.toString());
 			if (prt.equals(null)) {
 				openAPI.logger.info("Could not retrieve Property Configuration");
 			} else {
 				openAPI.logger.info("edgeURL:step4/7: extract edgeauth secret key from Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
+				/*
+				ArrayList<Child> childList = (ArrayList<Child>) prt.getRules().getChildren();
+				Iterator<Child> iteratoChild = childList.iterator();
+				while(iteratoChild.hasNext()){
+					Child child = null;
+					child = iteratoChild.next();
+					if(child.getName().equals("Access Control")){
+						ArrayList<Object> behaviorList;
+						behaviorList = (ArrayList<Object>) child.getChildren().get(0).getBehaviors();
+						LinkedTreeMap<String, Object> behaviorMapEntry = (LinkedTreeMap<String, Object>) behaviorList.get(1);
+						behaviorMapEntry.get("verifyTokenAuthorization");
+						Iterator<Object> iteratorChildBehaviors = behaviorList.iterator();
+						while(iteratorChildBehaviors.hasNext()){
+							//behavior = 
+							LinkedTreeMap<String, Object> behaviorMap = (LinkedTreeMap<String, Object>) iteratorChildBehaviors.next();
+							behaviorMap.get("key");
+							//if(behavior.startsWith("key"));
+							//edgeAuthKey = behavior.substring(3);
+							break;
+						}
+					};
+				};
+				*/
 				String edgeAuthKey = openAPI.getEdgeAuthKeyFromPapiRuleSet(prt);
+				
 				openAPI.logger.info("edgeURL:step5/7: extract edgeauth query name from Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
 				//String edgeAuthLocationId = openAPI.getEdgeAuthLocationFromPapiRuleSet(prt);
+				
 				//Integer startTime = (int) Instant.now().getEpochSecond();
-				Integer startTime = ((cmdEdgeurl.starttime == null) ?  (int) Instant.now().getEpochSecond() : cmdEdgeurl.starttime);
+				Integer startTime = ((cmdEdgeurl.starttime == null) ?  (int) Instant.now().getEpochSecond() : cmdEdgeurl.starttime);				
 				openAPI.logger.info("edgeURL:step6/7: generate edgeauth token with startime: "+startTime);
+
 				String edgeAuthToken;
 				//AkamaiTokenConfig conf = openAPI.GenerateConfig(cmdEdgeurl.in, edgeAuthKey, 3600);
 				//String edgeAuthToken = AkamaiTokenGenerator.generateToken(conf);
