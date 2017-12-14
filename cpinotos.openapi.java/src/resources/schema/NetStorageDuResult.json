@@ -1,0 +1,52 @@
+{
+	  "definitions": {},
+	  "$schema": "http://json-schema.org/draft-04/schema#",
+	  "type": "object",
+	  "properties": {
+	    "du": {
+	      "$id": "/properties/du",
+	      "type": "object",
+	      "properties": {
+	        "du-info": {
+	          "$id": "/properties/du/properties/du-info",
+	          "type": "object",
+	          "properties": {
+	            "bytes": {
+	              "$id": "/properties/du/properties/du-info/properties/bytes",
+	              "type": "integer",
+	              "title": "bytes",
+	              "description": "Byte size of the folder.",
+	              "default": 0,
+	              "examples": [
+	                0
+	              ]
+	            },
+	            "files": {
+	              "$id": "/properties/du/properties/du-info/properties/files",
+	              "type": "integer",
+	              "title": "files",
+	              "description": "Number of files inside the folder.",
+	              "default": 0,
+	              "examples": [
+	                0
+	              ]
+	            }
+	          },
+	  		  "required": ["bytes","files"]
+	        },
+	        "directory": {
+	          "$id": "/properties/du/properties/directory",
+	          "type": "string",
+	          "title": "directory",
+	          "description": "absolute Path of the Folder",
+	          "default": "",
+	          "examples": [
+	            "/599907/cpttest"
+	          ]
+	        },
+	        "required": ["du-info","directory"]
+	      }
+	    }
+	  },
+	  "required": ["du"]
+	}
