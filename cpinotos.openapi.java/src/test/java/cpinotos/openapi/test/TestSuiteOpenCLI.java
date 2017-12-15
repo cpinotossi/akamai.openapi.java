@@ -8,6 +8,7 @@ import cpinotos.openapi.test.step.OpenCLITestDeleteFile;
 import cpinotos.openapi.test.step.OpenCLITestDeleteFolder;
 import cpinotos.openapi.test.step.OpenCLITestDir;
 import cpinotos.openapi.test.step.OpenCLITestDirRecursive;
+import cpinotos.openapi.test.step.OpenCLITestGet;
 import cpinotos.openapi.test.step.OpenCLITestMkdir;
 import cpinotos.openapi.test.step.OpenCLITestSymLink;
 import cpinotos.openapi.test.step.OpenCLITestUpload;
@@ -17,6 +18,7 @@ import cpinotos.openapi.test.step.OpenCLITestUpload;
 	OpenCLITestMkdir.class, 
 	OpenCLITestUpload.class, 
 	OpenCLITestSymLink.class,
+	OpenCLITestGet.class,
 	OpenCLITestDir.class, 
 	OpenCLITestDirRecursive.class, 
 	OpenCLITestDeleteFile.class, 

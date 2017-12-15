@@ -21,9 +21,10 @@ import org.apache.log4j.Logger;
 import org.ini4j.Wini;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.XML;
+//import org.json.XML;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
+import org.json.XML;
 
 import com.akamai.edgegrid.signer.ClientCredential;
 import com.akamai.edgegrid.signer.exceptions.RequestSigningException;
@@ -36,6 +37,8 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.apache.ApacheHttpTransport;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import cpinotos.openapi.services.DiagnosticToolsAPI;
 import cpinotos.openapi.services.data.UrlDebug;
@@ -186,34 +189,7 @@ public class OpenAPI {
 				this.getNetstorageKey());
 	}
 
-/*	
-	public boolean doNetstorageMkdir(String path) {
-		boolean isCreated = false;	
-		try {
-			isCreated = this.getNetstorage().mkdir(path);
-		} catch (NetStorageException e) {
-			e.printStackTrace();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return isCreated;
-	}
 
-	public boolean doNetstorageDelete(String path) {
-		boolean isDeleted = false;		
-		try {
-			isDeleted = this.getNetstorage().quickDelete(path);
-		} catch (NetStorageException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return isDeleted;
-	}
-*/
 	public String getEdgeAuthToken(String path, String encrpytionKey, Integer duration, String tokenName, Integer startTime){
 		String url = null;
 		try {
@@ -435,158 +411,7 @@ public class OpenAPI {
 		return purgeExecuted;
 
 	}	
-	
-	/*
-	public NetStorageDirResultStat doNetstorageDir(String dir) {
-		String netStorageDirResultJson = null;
-		NetStorageDirResult netStorageDirResult = null;
-		String responseString = null;
-		try {
-			InputStream responseStream = this.getNetstorage().dir(dir);
-			responseString = inputStreamReader(responseStream);
-			netStorageDirResultJson = xml2json(responseString);
-			netStorageDirResultJson = netStorageDirResultJson.replaceAll("[\\t\\n\\r\\s]","");
-			netStorageDirResultJson = netStorageDirResultJson.replaceFirst("\"file\":\\{","\"file\":\\[\\{");
-			netStorageDirResultJson = netStorageDirResultJson.replaceFirst("\\},\"directory\":","\\}\\],\"directory\":");
-			Gson gson = new Gson();
-			netStorageDirResult = gson.fromJson(netStorageDirResultJson, NetStorageDirResult.class);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NetStorageException e) {
-			// TODO Auto-generated catch block
-			this.logger.info("doNetstorageDir input is not a directory, please add the cpcode folder: " +dir);
-			e.printStackTrace();
-		}
-		// ns.delete("/1234/example.zip");
-		catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return netStorageDirResult.getStat();
-	}
-
-	
-	public NetStorageDirResultStat doNetstorageDir(String path, boolean isRekursive) {
-		String netStorageDirResultJson = null;
-		NetStorageDirResult netStorageDirResult = null;
-		NetStorageDirResultFile currentFile = null;
-		NetStorageDirResultStat currentStat = null;
-		NetStorageDirResultStat nextStat = null;
-		String currentDir = null;
-		String nextDir = null;
-		//netStorageDirResultJson = xml2json(doNetstorageDir(path));
-		//netStorageDirResultJson = netStorageDirResultJson.replaceAll("[\\t\\n\\r\\s]","");
-		//netStorageDirResultJson = netStorageDirResultJson.replaceFirst("\"file\":\\{","\"file\":\\[\\{");
-		//netStorageDirResultJson = netStorageDirResultJson.replaceFirst("\\},\"directory\":","\\}\\],\"directory\":");			
-		//Gson gson = new Gson();
-		//netStorageDirResult = gson.fromJson(netStorageDirResultJson, NetStorageDirResult.class);
-		//this.logger.debug("doNetstorageDir recursive lookup netStorageDirResult: " +netStorageDirResultJson);
-			//currentStat = netStorageDirResult.getStat();
 		
-		    currentStat = doNetstorageDir(path);
-			currentDir = currentStat.getDirectory();
-						
-		if(isRekursive){
-			this.logger.debug("doNetstorageDir recursive lookup currentDir: " +currentDir);
-
-				//look for directories inside the Stats file list
-				Iterator<NetStorageDirResultFile> i = currentStat.getFile().iterator();
-				while(i.hasNext()){
-					currentFile = i.next();
-					if(currentFile.getType().equals("dir")){
-						nextDir = currentDir+"/"+currentFile.getName();
-						//lookup dir
-						//this.logger.info("doNetstorageDir recursive lookup nextDir: " +nextDir);
-						nextStat = doNetstorageDir(nextDir, true);
-						if(nextStat.getFile().size()>0){
-							currentFile.setFile(nextStat.getFile());	
-						}
-						
-					}
-				}				
-		}
-		Gson gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-		this.logger.debug("doNetstorageDir recursive lookup gson.toJson(currentStat): " +gsonBuilder.toJson(currentStat));
-		return currentStat;
-	}
-	
-	public String doNetstorageDu(String path) {
-		String responseString = null;
-		try {
-			InputStream responseStream = this.getNetstorage().du(path);
-			responseString = inputStreamReader(responseStream);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (NetStorageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// ns.delete("/1234/example.zip");
-		catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return responseString;
-	}
-
-	public String doNetstorageDu(String path, boolean isJson) {
-		return xml2json(doNetstorageDu(path));
-	}
-
-	public boolean doNetstorageDownload(String pathNetstorage, String pathLocal) {
-		boolean isDone = false;
-		try (InputStream responseStream = this.getNetstorage().download(pathNetstorage)){
-
-			File targetFile = new File(pathLocal);
-			try (OutputStream outStream = new FileOutputStream(targetFile)){
-	    	    byte[] buffer = new byte[8 * 1024];
-	    	    int bytesRead;
-	    	    while ((bytesRead = responseStream.read(buffer)) != -1) {
-	    	        outStream.write(buffer, 0, bytesRead);
-	    	    }				
-			}
-			isDone = true;
-			this.logger.debug("ns.download(" + pathNetstorage + " , "+pathLocal+")");
-		} catch (NetStorageException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return isDone;
-	}
-	
-	
-
-	public boolean doNetstorageUpload(String path, String file) {
-		boolean uploadResult = false;
-			try {
-				InputStream stream = fileReader(file);
-				uploadResult = this.getNetstorage().upload(path, stream);
-			} catch (FileNotFoundException e){
-				// TODO Need to figure out if we need to retry
-				this.logger.info("Local File does not exist");
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				this.logger.info("IOException, need to retry");
-				e.printStackTrace();
-			} catch (com.akamai.netstorage.NetStorageException e){
-				// TODO Need to figure out if we need to retry
-				this.logger.info("NetStorageException, need to retry");
-				e.printStackTrace();
-			} catch (Exception e) {
-				this.logger.info("Something did went wrong");
-				e.printStackTrace();
-			}			
-		this.logger.debug("ns.upload(" + path + "):" + uploadResult);
-		return uploadResult;
-	}
-*/
-	
 	public static String jsonFileReader(String path) throws IOException {
 		String content = null;
 		try {
@@ -625,6 +450,7 @@ public class OpenAPI {
 		}
 		return response;
 	}
+
 
 	public static String xml2json(String xml) {
 		String json = null;

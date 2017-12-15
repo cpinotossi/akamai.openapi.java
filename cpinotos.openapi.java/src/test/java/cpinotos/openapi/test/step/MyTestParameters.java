@@ -14,11 +14,13 @@ public class MyTestParameters {
 	@Getter @Setter private boolean isDebug=false;
 	@Getter @Setter private String configPath = "./openapi.property";
 	@Getter @Setter private String netStorageRootPath = "/599907";
-	@Getter @Setter private String netStorageTestFolderPath = netStorageRootPath+"/cpttest";
+	@Getter @Setter private String netStorageFolderName = "/cpttest";
+	@Getter @Setter private String netStorageTestFolderPath = netStorageRootPath+netStorageFolderName;
 	@Getter @Setter private String testFileName = "test.txt";
 	@Getter @Setter private String testSymLinkName = "test.symlink.txt";
 	@Getter @Setter private String netStorageTestFilePath = netStorageTestFolderPath+"/"+testFileName;
 	@Getter @Setter private String netStorageTestSymLinkPath = netStorageTestFolderPath+"/"+testSymLinkName;
+	@Getter @Setter private String netStorageTestUrlPath = netStorageFolderName +"/"+ testFileName;
 	
 	@Getter @Setter private String localPath = "./"+testFileName;
 	

@@ -19,7 +19,7 @@ public class OpenCLITestDir extends MyTestParameters {
 	@Test
 	public void test() throws Exception {
 		LOGGER.info(String.format("dir %s", getNetStorageTestFolderPath()));
-		assertTrue(getNsapi().doNetstorageDir(getNetStorageTestFolderPath(), false).getFile().get(0).getName().equals(getTestFileName()));
+		assertTrue(getNsapi().doNetstorageDir(getNetStorageTestFolderPath(), false).getFile().get(1).getName().equals(getTestFileName()));
 	}
 
 }

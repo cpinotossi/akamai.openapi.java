@@ -112,7 +112,6 @@ public NetStorageDirResultStat doNetstorageDir(String path, boolean isRekursive)
 				if(currentFile.getType().equals("dir")){
 					nextDir = currentDir+"/"+currentFile.getName();
 					//lookup dir
-					//this.logger.info("doNetstorageDir recursive lookup nextDir: " +nextDir);
 					nextStat = doNetstorageDir(nextDir, true);
 					if(nextStat.getFile().size()>0){
 						currentFile.setFile(nextStat.getFile());	
