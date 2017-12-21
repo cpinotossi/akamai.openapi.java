@@ -9,7 +9,10 @@ public class Commands {
 	public String config = "./openapi.property";
 	//@Parameter(names = { "--out", "-o" }, description = "directory path", required = false)
 	//String out = "/599907/updates/test" + System.currentTimeMillis() / 1000L + ".txt";
-    @Parameter(names = {"--help","-h"}, help = true)
+    @Parameter(names = {"--help"}, help = true)
     public boolean help = false;
+    
+    @Parameter(names = {"--hostname","-h"}, description = "hostname referenced inside an akamai configuration / property.", required = true)
+	public String hostname;
 }
 

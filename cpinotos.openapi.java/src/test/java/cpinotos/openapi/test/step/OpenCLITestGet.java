@@ -24,14 +24,14 @@ public class OpenCLITestGet extends MyTestParameters {
 	 
 	@Before
 	public void before() {
-		setOpenAPI(new OpenAPI(getConfigPath(), isDebug()));
+		setOpenAPI(new OpenAPI(getConfigPath(), getHost(), isDebug()));
 		setNsapi(new NetStorageAPI(getOpenAPI()));
 	}
 
 
 	@Test
     public void testWithChrome() {
-		String host = this.getOpenAPI().getHost();
+		String host = this.getOpenAPI().getHostname();
 		String url = String.format("http://%s%s",host, getNetStorageTestUrlPath());
 		LOGGER.info(String.format("get %s", url));
 		chromeDriver.get(url);

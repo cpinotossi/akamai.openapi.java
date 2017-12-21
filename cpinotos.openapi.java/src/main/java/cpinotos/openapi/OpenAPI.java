@@ -21,9 +21,6 @@ import org.apache.log4j.Logger;
 import org.ini4j.Wini;
 import org.json.JSONException;
 import org.json.JSONObject;
-//import org.json.XML;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.json.XML;
 
 import com.akamai.edgegrid.signer.ClientCredential;
@@ -37,14 +34,10 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.apache.ApacheHttpTransport;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import cpinotos.openapi.services.DiagnosticToolsAPI;
 import cpinotos.openapi.services.data.UrlDebug;
 
-//import com.akamai.edgeauth.AkamaiTokenConfig;
-//import com.akamai.edgeauth.Algorithm;
 
 import io.github.astinchoi.authtoken.AuthToken;
 import io.github.astinchoi.authtoken.AuthTokenBuilder;
@@ -53,7 +46,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 /*
- * TODO use lombok
  * TODO split into smaller pieces/classes. Single Responsibility Pattern.
  * TODO Use more interfaces
  * TODO Zip and Unzip for large Netstorage Uploads
@@ -70,9 +62,10 @@ public class OpenAPI {
 			purgeAccessToken, purgeClientToken, apiClientSecret, apiHost, apiAccessToken,
 			apiClientToken;
 	
-	@Getter @Setter private String host;
-	@Getter @Setter private String apiClientName;
-	@Getter @Setter private String apiClientPurgeName;
+	@Getter @Setter private String hostname;
+	@Getter @Setter private String apiClientName="api-client";
+	@Getter @Setter private String apiClientPurgeName="api-client-purge";
+	@Getter @Setter private String apiUploadAccountName="api-upload-account";
 	@Getter @Setter private String apiPurgeInvalidateEndpoint;
 	@Getter @Setter private String apiPurgeInvalidateCPCodeEndpoint;
 	@Getter @Setter private String apiPurgeInvalidateTagEndpoint;
@@ -91,14 +84,13 @@ public class OpenAPI {
 	@Getter @Setter private ClientCredential apiCredential;
 	@Getter @Setter private DefaultCredential netstorageCredential;
 	
-//	private NetStorage netstorage = null;
-	
-	public OpenAPI(String propertyFilePath, boolean debug) {
-		this.logger = Logger.getLogger(OpenAPI.class);	
-		//this.logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(OpenAPI.class);
-		//this.logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+	public OpenAPI(String propertyFilePath, String hostname, boolean debug) {
+		setHostname(hostname);
+		OpenAPI.logger.debug("Host: " + this.getHostname());
+		OpenAPI.logger = Logger.getLogger(OpenAPI.class);	
 
-		/*
+
+		/*TODO Debug flag support
 		if (debug) {
 			this.logger.setLevel(Level.DEBUG);
 		} else {
@@ -106,71 +98,72 @@ public class OpenAPI {
 		}
 		*/
 
-		Wini ini = null;
+		Wini iniAPI = null;
+		Wini edgerc = null;
 		try {
-			ini = new Wini(new File(propertyFilePath));
+			
+			InputStream is = OpenAPI.class.getResourceAsStream("/application.properties");
+			iniAPI = new Wini(is);
 			//api-endpoints
-			this.setApiPurgeInvalidateEndpoint(ini.get("api-endpoints","apiPurgeInvalidateEndpoint"));			
-			this.setApiPurgeInvalidateCPCodeEndpoint(ini.get("api-endpoints","apiPurgeInvalidateCPCodeEndpoint"));
-			this.setApiPapiSearchEndpoint(ini.get("api-endpoints","apiPapiSearchEndpoint"));
-			this.setApiPapiGetEndpoint(ini.get("api-endpoints","apiPapiGetEndpoint"));
-			this.setApiPapiGetRuletreeEndpoint(ini.get("api-endpoints","apiPapiGetRuletreeEndpoint"));
-			this.setApiDiagnosticToolsUrlDebugEndpoint(ini.get("api-endpoints","apiDiagnosticToolsUrlDebugEndpoint"));
-			this.setApiDiagnosticToolsTranslatedErrorEndpoint(ini.get("api-endpoints","apiDiagnosticToolsTranslatedErrorEndpoint"));
-			this.setApiDiagnosticToolsGetLogLinesFromIPEndpoint(ini.get("api-endpoints","apiDiagnosticToolsGetLogLinesFromIPEndpoint"));
-			this.setApiPapiListCPCodesEndpoint(ini.get("api-endpoints","apiPapiListCPCodesEndpoint"));
-			this.setApiPapiCreateCPCodesEndpoint(ini.get("api-endpoints","apiPapiCreateCPCodesEndpoint"));
-			this.setApiPapiListProductsEndpoint(ini.get("api-endpoints","apiPapiListProductsEndpoint"));
+			this.setApiPurgeInvalidateEndpoint(iniAPI.get("api-endpoints","apiPurgeInvalidateEndpoint"));			
+			this.setApiPurgeInvalidateCPCodeEndpoint(iniAPI.get("api-endpoints","apiPurgeInvalidateCPCodeEndpoint"));
+			this.setApiPapiSearchEndpoint(iniAPI.get("api-endpoints","apiPapiSearchEndpoint"));
+			this.setApiPapiGetEndpoint(iniAPI.get("api-endpoints","apiPapiGetEndpoint"));
+			this.setApiPapiGetRuletreeEndpoint(iniAPI.get("api-endpoints","apiPapiGetRuletreeEndpoint"));
+			this.setApiDiagnosticToolsUrlDebugEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsUrlDebugEndpoint"));
+			this.setApiDiagnosticToolsTranslatedErrorEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsTranslatedErrorEndpoint"));
+			this.setApiDiagnosticToolsGetLogLinesFromIPEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsGetLogLinesFromIPEndpoint"));
+			this.setApiPapiListCPCodesEndpoint(iniAPI.get("api-endpoints","apiPapiListCPCodesEndpoint"));
+			this.setApiPapiCreateCPCodesEndpoint(iniAPI.get("api-endpoints","apiPapiCreateCPCodesEndpoint"));
+			this.setApiPapiListProductsEndpoint(iniAPI.get("api-endpoints","apiPapiListProductsEndpoint"));
 			
 			
-			
-			//nestorage-upload-account
-			this.setNetstorageClient(ini.get("nestorage-upload-account","client"));
-			this.logger.debug("Netstorage Client: " + this.getNetstorageClient());
-			this.setNetstorageHost(ini.get("nestorage-upload-account","host"));
-			this.logger.debug("Netstorage Host: " + this.getNetstorageHost());
-			this.setNetstorageKey(ini.get("nestorage-upload-account","key"));
-			this.logger.debug("Netstorage Key: " + this.getNetstorageKey());
-			
-			//general
-			this.setHost(ini.get("general", "host"));
-			this.logger.debug("Host: " + this.getHost());
+			//retrieve credentials
+			edgerc = new Wini(new File(propertyFilePath));			
+									
+			//api-client-purge
+			if(!edgerc.containsKey(this.getApiClientPurgeName())){
+				OpenAPI.logger.info("Credentials section api-client-purge is missing");
+				System.exit(1);
+			}else{
+				this.setPurgeAccessToken(edgerc.get(this.getApiClientPurgeName(),"access_token"));
+				OpenAPI.logger.debug("Purge Access Token: " + this.getPurgeAccessToken());
+				this.setPurgeClientSecret(edgerc.get(this.getApiClientPurgeName(),"client_secret"));
+				OpenAPI.logger.debug("Purge Client Secret: " + this.getPurgeClientSecret());
+				this.setPurgeClientToken(edgerc.get(this.getApiClientPurgeName(),"client_token"));
+				OpenAPI.logger.debug("Purge Client Token: " + this.getPurgeClientToken());
+				this.setPurgeHost(edgerc.get(this.getApiClientPurgeName(),"host"));
+				OpenAPI.logger.debug("Purge Client Host: " + this.getPurgeHost());				
+			}
 
-			this.setApiClientName(ini.get("general", "api-client"));
-			this.setApiClientPurgeName(ini.get("general", "api-client-purge"));
-			this.logger.debug("Host: " + this.getHost());
-			
-			if(!ini.get("general", "edgerc-file").isEmpty()){
-				ini = new Wini(new File(ini.get("general", "edgerc-file")));
-			}
-			
-			//akamai-api-purge
-			if(!ini.containsKey(this.getApiClientPurgeName())){
-				this.logger.info("Credentials section akamai-api-purge is missing");
-				System.exit(1);
-			}
-			this.setPurgeAccessToken(ini.get(this.getApiClientPurgeName(),"access_token"));
-			this.logger.debug("Purge Access Token: " + this.getPurgeAccessToken());
-			this.setPurgeClientSecret(ini.get(this.getApiClientPurgeName(),"client_secret"));
-			this.logger.debug("Purge Client Secret: " + this.getPurgeClientSecret());
-			this.setPurgeClientToken(ini.get(this.getApiClientPurgeName(),"client_token"));
-			this.logger.debug("Purge Client Token: " + this.getPurgeClientToken());
-			this.setPurgeHost(ini.get(this.getApiClientPurgeName(),"host"));
-			this.logger.debug("Purge Client Host: " + this.getPurgeHost());
 				
-			//akamai-api
-			if(!ini.containsKey(this.getApiClientName())){
-				this.logger.info("Credentials section akamai-api is missing");
+			//api-client
+			if(!edgerc.containsKey(this.getApiClientName())){
+				OpenAPI.logger.info("Credentials section api-client is missing");
 				System.exit(1);
+			}else{
+				this.setApiClientSecret(edgerc.get(this.getApiClientName(),"client_secret"));
+				OpenAPI.logger.debug("API Client Secret: " + this.getApiClientSecret());
+				this.setApiHost(edgerc.get(this.getApiClientName(),"host"));
+				OpenAPI.logger.debug("API Host: " + this.getApiHost());
+				this.setApiAccessToken(edgerc.get(this.getApiClientName(),"access_token"));
+				OpenAPI.logger.debug("API Access Token: " + this.getApiAccessToken());
+				this.setApiClientToken(edgerc.get(this.getApiClientName(),"client_token"));
+				OpenAPI.logger.debug("API Client Token: " + this.getApiClientToken());				
 			}
-			this.setApiClientSecret(ini.get(this.getApiClientName(),"client_secret"));
-			this.logger.debug("API Client Secret: " + this.getApiClientSecret());
-			this.setApiHost(ini.get(this.getApiClientName(),"host"));
-			this.logger.debug("API Host: " + this.getApiHost());
-			this.setApiAccessToken(ini.get(this.getApiClientName(),"access_token"));
-			this.logger.debug("API Access Token: " + this.getApiAccessToken());
-			this.setApiClientToken(ini.get(this.getApiClientName(),"client_token"));
-			this.logger.debug("API Client Token: " + this.getApiClientToken());
+			
+			//api-upload-account
+			if(!edgerc.containsKey(this.getApiUploadAccountName())){
+				OpenAPI.logger.info("Credentials section api-upload-account is missing");
+				System.exit(1);
+			}else{
+				this.setNetstorageClient(edgerc.get(getApiUploadAccountName(),"client"));
+				OpenAPI.logger.debug("Netstorage Client: " + this.getNetstorageClient());
+				this.setNetstorageHost(edgerc.get(getApiUploadAccountName(),"host"));
+				OpenAPI.logger.debug("Netstorage Host: " + this.getNetstorageHost());
+				this.setNetstorageKey(edgerc.get(getApiUploadAccountName(),"key"));
+				OpenAPI.logger.debug("Netstorage Key: " + this.getNetstorageKey());
+			}
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -202,7 +195,7 @@ public class OpenAPI {
 			  at.setTokenName("token");
 			  String token = at.generateURLToken(path);
 			  //TODO Find a better way to select the protocol
-			  url = String.format("http://%s%s?%s=%s", this.getHost(), path,at.getTokenName(), token);
+			  url = String.format("http://%s%s?%s=%s", this.getHostname(), path,at.getTokenName(), token);
 			  // => Link or Request "url" /w Query string
 			} catch (AuthTokenException e) {
 			  e.printStackTrace();

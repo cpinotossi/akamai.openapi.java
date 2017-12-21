@@ -143,7 +143,7 @@ public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration(Str
 }
 
 public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration() {
-	return searchPAPIConfiguration(this.openAPI.getHost());
+	return searchPAPIConfiguration(this.openAPI.getHostname());
 }
 
 public String getPAPIRuletreeAsJSON(String propertyId, Integer propertyVersion, String contractId, String groupId,

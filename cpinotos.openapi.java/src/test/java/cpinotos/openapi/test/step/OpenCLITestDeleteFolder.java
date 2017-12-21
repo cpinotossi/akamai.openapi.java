@@ -14,7 +14,7 @@ public class OpenCLITestDeleteFolder extends MyTestParameters {
 
 	@Before
 	public void before() {
-		setOpenAPI(new OpenAPI(getConfigPath(), isDebug()));
+		setOpenAPI(new OpenAPI(getConfigPath(), getHost(), isDebug()));
 		setNsapi(new NetStorageAPI(getOpenAPI()));
 	}
 

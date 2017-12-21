@@ -107,7 +107,7 @@ public class OpenCLI {
 	    }
         String currentCmd = jc.getParsedCommand();
 		// Instantiate an instance of
-		OpenAPI openAPI = new OpenAPI(commands.config, commands.verbose);
+		OpenAPI openAPI = new OpenAPI(commands.config, commands.hostname, commands.verbose);
 	 
 		/*
 		if (commands.verbose) {
@@ -116,7 +116,7 @@ public class OpenCLI {
 			openAPI.getLogger().setLevel(Level.INFO);
 		}
 		*/
-		openAPI.getLogger().debug("Host: " + openAPI.getHost());
+		openAPI.getLogger().debug("Host: " + openAPI.getHostname());
 		openAPI.getLogger().debug("Netstorage Client: " + openAPI.getNetstorageClient());
 		openAPI.getLogger().debug("Netstorage Host: " + openAPI.getNetstorageHost());
 		openAPI.getLogger().debug("Netstorage Key: " + openAPI.getNetstorageKey());
@@ -181,7 +181,7 @@ public class OpenCLI {
 			break; // optional
 		case "edgeurl":
 			openAPI.getLogger().info("Start edgeurl:");
-			openAPI.getLogger().info("edgeURL:step1/7: found Property Configuration for Hostname " + openAPI.getHost());
+			openAPI.getLogger().info("edgeURL:step1/7: found Property Configuration for Hostname " + openAPI.getHostname());
 			SearchPropertyVersionsBySingleValueResponseV0 psr = papi.searchPAPIConfiguration();
 			//TODO Handle exception no config for provided hostname
 			SearchPropertyVersionsBySingleValueResponseItemV0 psri = psr.getVersions().getItems().get(0);

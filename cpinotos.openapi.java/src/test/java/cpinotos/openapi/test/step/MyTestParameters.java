@@ -12,7 +12,8 @@ import lombok.Setter;
 public class MyTestParameters {
 	@Getter @Setter private boolean result=false;
 	@Getter @Setter private boolean isDebug=false;
-	@Getter @Setter private String configPath = "./openapi.property";
+	@Getter @Setter private String host = "ota.edgegate.de";
+	@Getter @Setter private String configPath = "/Users/cpinotos/.edgerc";
 	@Getter @Setter private String netStorageRootPath = "/599907";
 	@Getter @Setter private String netStorageFolderName = "/cpttest";
 	@Getter @Setter private String netStorageTestFolderPath = netStorageRootPath+netStorageFolderName;
