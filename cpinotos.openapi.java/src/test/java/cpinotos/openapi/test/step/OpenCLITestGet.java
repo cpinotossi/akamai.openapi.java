@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-import cpinotos.openapi.OpenAPI;
 import cpinotos.openapi.services.NetStorageAPI;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -24,14 +23,13 @@ public class OpenCLITestGet extends MyTestParameters {
 	 
 	@Before
 	public void before() {
-		setOpenAPI(new OpenAPI(getConfigPath(), getHost(), isDebug()));
-		setNsapi(new NetStorageAPI(getOpenAPI()));
+		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), getApiUploadAccountName(), isDebug()));
 	}
 
 
 	@Test
     public void testWithChrome() {
-		String host = this.getOpenAPI().getHostname();
+		String host = this.getHostname();
 		String url = String.format("http://%s%s",host, getNetStorageTestUrlPath());
 		LOGGER.info(String.format("get %s", url));
 		chromeDriver.get(url);

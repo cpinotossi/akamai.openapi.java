@@ -1,39 +1,28 @@
 package cpinotos.openapi.services;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.akamai.edgegrid.signer.exceptions.RequestSigningException;
-import com.akamai.edgegrid.signer.googlehttpclient.GoogleHttpClientEdgeGridRequestSigner;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.gson.Gson;
 
 import cpinotos.openapi.OpenAPI;
 import cpinotos.openapi.services.data.CreateNewCPCodeResultV0;
 import cpinotos.openapi.services.data.ListCPCodeResult;
-import cpinotos.openapi.services.data.LogLines;
 import cpinotos.openapi.services.data.ProductIoT;
 import cpinotos.openapi.services.data.ProductsResult;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseItemV0;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseV0;
-import cpinotos.openapi.services.data.TranslatedError;
-import cpinotos.openapi.services.data.UrlDebug;
 
 
-public class PropertyManagerAPI {
-private OpenAPI openAPI;
+public class PropertyManagerAPI extends OpenAPI {
 
-	public PropertyManagerAPI(OpenAPI openAPI){
-		this.openAPI=openAPI;
+	public PropertyManagerAPI(String hostname, String edgercFilePath, String apiClientNameSection, boolean debug){
+		super(hostname, edgercFilePath, debug);
+		this.setApiClientName(apiClientNameSection);
+		initApiCredentials();
 }
+
+
 
 public ListCPCodeResult doListCPCodes(){
 	SearchPropertyVersionsBySingleValueResponseV0 psr = searchPAPIConfiguration();
@@ -41,94 +30,19 @@ public ListCPCodeResult doListCPCodes(){
 }
 	
 public ListCPCodeResult doListCPCodes(String contractId, String groupId){
-	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiListCPCodesEndpoint(), "contractId", contractId);
+	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.getApiPapiListCPCodesEndpoint(), "contractId", contractId);
 	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "groupId", groupId);
 	Gson gson = new Gson();
-	String jsonResult = this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+	String jsonResult = this.doEdgeGridAPIRequest(currentApiPapiEndpoint);
 	return gson.fromJson(jsonResult, ListCPCodeResult.class);
 }
 
-public UrlDebug urlDebug(String url, String edgeIP){
-	//TODO Maybe we should allow different search parameters
-	String apiQuery = String.format("?url=%s&edgeIp=%s",url,edgeIP); 
-	return doUrlDebug(apiQuery);
-}
-public UrlDebug urlDebug(String url, String edgeIP, ArrayList<String> headerList){
-	String apiQuery = String.format("?url=%s&edgeIp=%s",url,edgeIP); 
-	Iterator<String> i = headerList.iterator();
-	while(i.hasNext()){
-		apiQuery.concat("&header="+i.next());
-	}
-	return doUrlDebug(apiQuery);
-}
-
-public UrlDebug doUrlDebug(String apiQuery){
-	UrlDebug urlDebugResult = null;
-	String apiPath = this.openAPI.getApiDiagnosticToolsUrlDebugEndpoint()+apiQuery;
-	// Use com.google.api.client.http Helper for HTTP Request
-	HttpTransport httpTransport = new ApacheHttpTransport();
-	HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-	URI uri = null;
-	HttpRequest request = null;
-	try {
-		uri = new URI("https://" + openAPI.getApiHost() + apiPath);		
-		// Ensure to use Content-Type application/json
-		request = requestFactory.buildGetRequest(new GenericUrl(uri));
-		request.setReadTimeout(0);
-		// Create a new EdgeGrid Signer Object
-		GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-				openAPI.getApiCredential());
-		// Sign the request
-		requestSigner.sign(request);
-		// send the request to the OPEN API Interface via HTTP POST
-		HttpResponse response = request.execute();
-		String diagnosticToolsUrlDebugResultJson = response.parseAsString();
-		Gson gson = new Gson();
-		urlDebugResult = gson.fromJson(diagnosticToolsUrlDebugResultJson, UrlDebug.class);
-	} catch (URISyntaxException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (RequestSigningException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	return urlDebugResult;
-}
-
-//TODO move over to DiagnosticTools Class
-public TranslatedError doTranslateError(String errorString){
-	String currentApiPapiEndpoint = this.openAPI.getApiDiagnosticToolsTranslatedErrorEndpoint();
-	currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{errorCode}", errorString);
-	Gson gson = new Gson();
-	return gson.fromJson(this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint), TranslatedError.class);
-}
-
-public LogLines doGetLogLinesFromIP(String ipAddress, String endTime, String arl, String clientIp, String cpCode, String duration, String hostHeader, String httpStatusCode, String logType, String maxLogLines, String objStatus, String requestId, String userAgent){
-	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiDiagnosticToolsGetLogLinesFromIPEndpoint(), "ipAddress", ipAddress);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "endTime", endTime);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "arl", arl);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "clientIp", clientIp);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "cpCode", cpCode);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "duration", duration);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "hostHeader", hostHeader);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "httpStatusCode", httpStatusCode);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "logType", logType);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "maxLogLines", maxLogLines);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "objStatus", objStatus);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "requestId", requestId);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "userAgent", userAgent);
-	Gson gson = new Gson();
-	return gson.fromJson(this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint), LogLines.class);
-}
 
 /*
  * No longer needed
 public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration(String host, String searchJSON) {
-	String apiRequestUrl = this.openAPI.getApiPapiSearchEndpoint();
-	String jsonResult = this.openAPI.doEdgeGridAPIRequestPOST(apiRequestUrl, searchJSON);	
+	String apiRequestUrl = this.getApiPapiSearchEndpoint();
+	String jsonResult = this.doEdgeGridAPIRequestPOST(apiRequestUrl, searchJSON);	
 	Gson gson = new Gson();
 	return gson.fromJson(jsonResult, SearchPropertyVersionsBySingleValueResponseV0.class);
 }
@@ -136,45 +50,45 @@ public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration(Str
 
 public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration(String host) {
 	String searchJSON = "{\"hostname\":\"" + host + "\"}";
-	String apiRequestUrl = this.openAPI.getApiPapiSearchEndpoint();
-	String jsonResult = this.openAPI.doEdgeGridAPIRequestPOST(apiRequestUrl, searchJSON);	
+	String apiRequestUrl = this.getApiPapiSearchEndpoint();
+	String jsonResult = this.doEdgeGridAPIRequestPOST(apiRequestUrl, searchJSON);	
 	Gson gson = new Gson();
 	return gson.fromJson(jsonResult, SearchPropertyVersionsBySingleValueResponseV0.class);
 }
 
 public SearchPropertyVersionsBySingleValueResponseV0 searchPAPIConfiguration() {
-	return searchPAPIConfiguration(this.openAPI.getHostname());
+	return searchPAPIConfiguration(this.getHostname());
 }
 
 public String getPAPIRuletreeAsJSON(String propertyId, Integer propertyVersion, String contractId, String groupId,
 		boolean validateRules) {	
-		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiGetRuletreeEndpoint(), "propertyVersion", propertyVersion.toString());
+		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.getApiPapiGetRuletreeEndpoint(), "propertyVersion", propertyVersion.toString());
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "propertyId", propertyId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "contractId", contractId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "groupId", groupId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "validateRules", Boolean.toString(validateRules));
-		return this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+		return this.doEdgeGridAPIRequest(currentApiPapiEndpoint);
 }
 
 public ProductIoT getPAPIRuletree(String propertyId, Integer propertyVersion, String contractId, String groupId,
 		boolean validateRules) {	
 		String jsonResult;
-		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiGetRuletreeEndpoint(), "propertyVersion", propertyVersion.toString());
+		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.getApiPapiGetRuletreeEndpoint(), "propertyVersion", propertyVersion.toString());
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "propertyId", propertyId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "contractId", contractId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "groupId", groupId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "validateRules", Boolean.toString(validateRules));
-		jsonResult = this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+		jsonResult = this.doEdgeGridAPIRequest(currentApiPapiEndpoint);
 		Gson gson = new Gson();
 		return gson.fromJson(jsonResult, ProductIoT.class);
 		
 }
 
 public String getPAPIConfiguration(String propertyId, String contractId, String groupId) {
-		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiGetEndpoint(), "propertyId", propertyId);
+		String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.getApiPapiGetEndpoint(), "propertyId", propertyId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "contractId", contractId);
 		currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "groupId", groupId);
-		return this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+		return this.doEdgeGridAPIRequest(currentApiPapiEndpoint);
 }
 
 public CreateNewCPCodeResultV0 doCreateCPCodes(String cpCodeName, String productId) {
@@ -185,10 +99,10 @@ public CreateNewCPCodeResultV0 doCreateCPCodes(String cpCodeName, String product
 
 public CreateNewCPCodeResultV0 doCreateCPCodes(String contractId, String groupId, String cpCodeName, String productId) {
 	String requestJson = String.format("{\"cpcodeName\": \"%s\",\"productId\": \"%s\"}", cpCodeName, productId);
-	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiCreateCPCodesEndpoint(), "contractId", contractId);
+	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.getApiPapiCreateCPCodesEndpoint(), "contractId", contractId);
 	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "groupId", groupId);
 	Gson gson = new Gson();
-	String jsonResult = this.openAPI.doEdgeGridAPIRequestPOST(currentApiPapiEndpoint, requestJson);
+	String jsonResult = this.doEdgeGridAPIRequestPOST(currentApiPapiEndpoint, requestJson);
 	return gson.fromJson(jsonResult, CreateNewCPCodeResultV0.class);
 }
 
@@ -199,9 +113,80 @@ public ProductsResult doListProducts(){
 }
 
 public ProductsResult doListProducts(String contractId){
-	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiPapiListProductsEndpoint(), "contractId", contractId);
-	String jsonResult = this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.getApiPapiListProductsEndpoint(), "contractId", contractId);
+	String jsonResult = this.doEdgeGridAPIRequest(currentApiPapiEndpoint);
 	Gson gson = new Gson();
 	return gson.fromJson(jsonResult, ProductsResult.class);
 }
+
+private String getEdgeAuthFromPapiRuleSet(String papiRuleSetJson) {
+	String papiRuleSetJsonNew = papiRuleSetJson.replaceAll("\\r?\\n?\\s", "");
+	OpenAPI.LOGGER.debug("papiRuleSetJson:" + papiRuleSetJsonNew);
+	String edgeauth = null;
+	// String pattern =
+	// "\\{\"name\":\"verifyTokenAuthorization\"[^\\}\\}]*";
+	// String pattern = ".*verifyTokenAuthorization.*";
+	String pattern = "verifyTokenAuthorization.*";
+
+	Pattern r = Pattern.compile(pattern);
+	Matcher m = r.matcher(papiRuleSetJsonNew);
+	if (m.matches()) {
+		OpenAPI.LOGGER.debug("m1.group().length():" + m.group().length());
+		OpenAPI.LOGGER.debug("m1.group(1):" + m.group(0));
+		edgeauth = m.group(0);
+	}
+	return edgeauth;
+}
+
+public String getEdgeAuthKeyFromPapiRuleSet_(String papiRuleSetJson) {
+	String edgeauthKey = null;
+	String pattern = "^.*key\".:.\"(.*)\",.*failureResponse.*";
+	// String pattern = "^.*key\".:.\"(.*)\",.*";
+	Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+	Matcher m = r.matcher(papiRuleSetJson);
+	if (m.matches()) {
+		OpenAPI.LOGGER.debug("m.group().length():" + m.group().length());
+		OpenAPI.LOGGER.debug("m.group(1):" + m.group(1));
+		edgeauthKey = m.group(1);
+	}
+	return edgeauthKey;
+
+}
+public String getEdgeAuthKeyFromPapiRuleSet(String papiRuleSetJson) {
+	
+	String edgeauthKey = null;
+	//Try to find inside Advanced Section
+	try{
+		String pattern = "<key>(.+?)</key>";
+		Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+		Matcher m = r.matcher(papiRuleSetJson);
+		m.find();
+		edgeauthKey = m.group(1);
+		OpenAPI.LOGGER.debug("m.group(1):" + m.group(1));			
+	}catch(java.lang.IllegalStateException e){
+		//Try to find inside JSON
+		String pattern = ".*\"key\".:.\"(.+?)\",.*";
+		Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+		Matcher m = r.matcher(papiRuleSetJson);
+		m.find();
+		edgeauthKey = m.group(1);
+		OpenAPI.LOGGER.debug("m.group(1):" + m.group(1));
+	}
+
+	return edgeauthKey;
+}
+
+public String getEdgeAuthLocationFromPapiRuleSet(String papiRuleSetJson) {
+	String edgeauthKey = null;
+	String pattern = "^.*locationId\".:.\"(.*)\",.*key.*";
+	Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+	Matcher m = r.matcher(papiRuleSetJson);
+	if (m.matches()) {
+		OpenAPI.LOGGER.debug("m.group().length():" + m.group().length());
+		OpenAPI.LOGGER.debug("m.group(1):" + m.group(1));
+		edgeauthKey = m.group(1);
+	}
+	return edgeauthKey;
+}
+
 }

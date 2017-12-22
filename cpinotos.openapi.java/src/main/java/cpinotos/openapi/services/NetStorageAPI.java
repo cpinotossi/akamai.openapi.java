@@ -6,10 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Iterator;
@@ -30,19 +27,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-public class NetStorageAPI {
-@Getter @Setter private OpenAPI openAPI;
+public class NetStorageAPI extends OpenAPI{
 @Getter @Setter private NetStorage netStorage;
 
 
-public static void main(String[] args) throws UnknownHostException, UnsupportedEncodingException{
+public NetStorageAPI(String hostname, String edgercFilePath, String apiUploadAccountNameSection, boolean debug){
+	super(hostname, edgercFilePath, debug);
+	this.setApiUploadAccountName(apiUploadAccountNameSection);	
+	initApiCredentialsNetStorage();
+	this.setNetStorage(new NetStorage(this.getNetstorageCredential()));
+}
 
-	
-}
-public NetStorageAPI(OpenAPI openAPI){
-	this.openAPI=openAPI;
-	this.setNetStorage(new NetStorage(this.getOpenAPI().getNetstorageCredential()));
-}
+
 public boolean doNetstorageMkdir(String path) {
 	boolean isCreated = false;
 	try {
@@ -67,7 +63,7 @@ public boolean doNetstorageDelete(String path){
 			isDeleted = this.getNetStorage().delete(path);	
 		}
 	}catch (Exception e) {
-		OpenAPI.getLogger().error(e);
+		OpenAPI.LOGGER.debug("doNetstorageDelete",e);
 	}
 		
 	return isDeleted;
@@ -87,7 +83,7 @@ public NetStorageDirResultStat doNetstorageDir(String dir) {
 		Gson gson = new Gson();
 		netStorageDirResult = gson.fromJson(netStorageDirResultJson, NetStorageDirResult.class);
 	}catch (Exception e) {
-		OpenAPI.getLogger().error(e);
+		OpenAPI.LOGGER.debug("NetStorageDirResultStat",e);
 	}
 	return netStorageDirResult.getStat();
 }
@@ -103,7 +99,7 @@ public NetStorageDirResultStat doNetstorageDir(String path, boolean isRekursive)
 		currentDir = currentStat.getDirectory();
 					
 	if(isRekursive){
-		OpenAPI.getLogger().debug("doNetstorageDir recursive lookup currentDir: " +currentDir);
+		OpenAPI.LOGGER.debug("doNetstorageDir recursive lookup currentDir: " +currentDir);
 
 			//look for directories inside the Stats file list
 			Iterator<NetStorageDirResultFile> i = currentStat.getFile().iterator();
@@ -121,7 +117,7 @@ public NetStorageDirResultStat doNetstorageDir(String path, boolean isRekursive)
 			}				
 	}
 	Gson gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-	OpenAPI.getLogger().debug("doNetstorageDir recursive lookup gson.toJson(currentStat): " +gsonBuilder.toJson(currentStat));
+	OpenAPI.LOGGER.debug("doNetstorageDir recursive lookup gson.toJson(currentStat): " +gsonBuilder.toJson(currentStat));
 	return currentStat;
 }
 
@@ -134,7 +130,7 @@ public boolean isNetstorageFolder(String path){
 		isFolder = true;
 	}
 	catch (Exception e) {
-		OpenAPI.getLogger().error(e);
+		OpenAPI.LOGGER.debug("isNetstorageFolder",e);
 	}
 	return isFolder;
 }
@@ -150,7 +146,7 @@ public NetStorageDuResult doNetstorageDu(String path){
 		jsonResult = OpenAPI.xml2json(xmlResult);
 		response =  gson.fromJson(jsonResult, NetStorageDuResult.class);
 	}catch (Exception e) {
-		OpenAPI.getLogger().error(e);
+		OpenAPI.LOGGER.debug("doNetstorageDu",e);
 	}
 	return response;
 }
@@ -168,9 +164,9 @@ public boolean doNetstorageDownload(String pathNetstorage, String pathLocal) {
     	    }				
 		}
 		isDone = true;
-		OpenAPI.getLogger().debug("ns.download(" + pathNetstorage + " , "+pathLocal+")");
+		OpenAPI.LOGGER.debug("ns.download(" + pathNetstorage + " , "+pathLocal+")");
 	} catch (Exception e) {
-		OpenAPI.getLogger().error(e);
+		OpenAPI.LOGGER.debug("doNetstorageDownload",e);
 	}
 	return isDone;
 }
@@ -180,32 +176,32 @@ public boolean doNetstorageDownload(String pathNetstorage, String pathLocal) {
 public boolean doNetstorageUpload(String targetPath, String sourcePath) {
 	boolean uploadResult = false;
 		try {
-			InputStream stream = openAPI.fileReader(sourcePath);
+			InputStream stream = this.fileReader(sourcePath);
 			uploadResult = this.getNetStorage().upload(targetPath, stream);
 		} catch (FileNotFoundException e){
 			// TODO Need to figure out if we need to retry
-			OpenAPI.getLogger().info("Local File does not exist");
+			OpenAPI.LOGGER.info("Local File does not exist");
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			OpenAPI.getLogger().info("IOException, need to retry");
-			OpenAPI.getLogger().error(e);
+			OpenAPI.LOGGER.info("IOException, need to retry");
+			OpenAPI.LOGGER.debug("doNetstorageUpload",e);
 		} catch (com.akamai.netstorage.NetStorageException e){
 			// TODO Need to figure out if we need to retry
-			OpenAPI.getLogger().info("NetStorageException, need to retry");
-			OpenAPI.getLogger().error(e);
+			OpenAPI.LOGGER.info("NetStorageException, need to retry");
+			OpenAPI.LOGGER.debug("doNetstorageUpload",e);
 		} catch (Exception e) {
-			OpenAPI.getLogger().info("Something did went wrong");
-			OpenAPI.getLogger().error(e);
+			OpenAPI.LOGGER.info("Something did went wrong");
+			OpenAPI.LOGGER.debug("doNetstorageUpload",e);
 		}			
-		OpenAPI.getLogger().debug("ns.upload(" + targetPath + "):" + uploadResult);
+		OpenAPI.LOGGER.debug("ns.upload(" + targetPath + "):" + uploadResult);
 	return uploadResult;
 }
 
 public boolean doNetstorageUpload(String targetPath, String sourcePath, String releaseDate) {
 	boolean uploadResult = false;
 		try {
-			InputStream stream = openAPI.fileReader(sourcePath);
+			InputStream stream = this.fileReader(sourcePath);
 			byte[] b = Files.readAllBytes(Paths.get(sourcePath));
 			String targetPathFileName = Paths.get(sourcePath).getFileName().toString();
 			byte[] hash = MessageDigest.getInstance("MD5").digest(b);
@@ -214,30 +210,30 @@ public boolean doNetstorageUpload(String targetPath, String sourcePath, String r
 			String newestPath = targetPath + releaseDate + ".png";
 			String originPath = targetPath + targetPathFileName;
 			
-			OpenAPI.getLogger().info("hashValuePath: " + hashValuePath);
-			OpenAPI.getLogger().info("newestPath: " + newestPath);
-			OpenAPI.getLogger().info("originPath: " + originPath);
+			OpenAPI.LOGGER.info("hashValuePath: " + hashValuePath);
+			OpenAPI.LOGGER.info("newestPath: " + newestPath);
+			OpenAPI.LOGGER.info("originPath: " + originPath);
 			
 			uploadResult = this.getNetStorage().upload(hashValuePath, stream);
 			uploadResult = this.doNetstorageSymLink(newestPath, hashValuePath);
 			uploadResult = this.doNetstorageSymLink(originPath, hashValuePath);
 		} catch (FileNotFoundException e){
 			// TODO Need to figure out if we need to retry
-			OpenAPI.getLogger().info("Local File does not exist");
-			OpenAPI.getLogger().error(e);
+			OpenAPI.LOGGER.info("Local File does not exist");
+			OpenAPI.LOGGER.debug("doNetstorageUpload",e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			OpenAPI.getLogger().info("IOException, need to retry");
-			OpenAPI.getLogger().error(e);
+			OpenAPI.LOGGER.info("IOException, need to retry");
+			OpenAPI.LOGGER.debug("doNetstorageUpload",e);
 		} catch (com.akamai.netstorage.NetStorageException e){
 			// TODO Need to figure out if we need to retry
-			OpenAPI.getLogger().info("NetStorageException, need to retry");
-			OpenAPI.getLogger().error(e);
+			OpenAPI.LOGGER.info("NetStorageException, need to retry");
+			OpenAPI.LOGGER.debug("doNetstorageUpload",e);
 		} catch (Exception e) {
-			OpenAPI.getLogger().info("Something did went wrong");
-			OpenAPI.getLogger().error(e);
+			OpenAPI.LOGGER.info("Something did went wrong");
+			OpenAPI.LOGGER.debug("doNetstorageUpload",e);
 		}			
-		OpenAPI.getLogger().debug("ns.upload(" + targetPath + "):" + uploadResult);
+		OpenAPI.LOGGER.debug("ns.upload(" + targetPath + "):" + uploadResult);
 	return uploadResult;
 }
 

@@ -12,16 +12,15 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Wini;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.akamai.edgegrid.signer.ClientCredential;
 import com.akamai.edgegrid.signer.exceptions.RequestSigningException;
@@ -34,10 +33,6 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.apache.ApacheHttpTransport;
-
-import cpinotos.openapi.services.DiagnosticToolsAPI;
-import cpinotos.openapi.services.data.UrlDebug;
-
 
 import io.github.astinchoi.authtoken.AuthToken;
 import io.github.astinchoi.authtoken.AuthTokenBuilder;
@@ -54,18 +49,21 @@ import lombok.Setter;
 public class OpenAPI {
 	// Instantiate an instance of slf4j logger
 	//public Logger logger = null;
-	@Getter @Setter
-	public static org.apache.log4j.Logger logger;
+
+	//public static org.apache.log4j.Logger logger;
+	public static Logger LOGGER = LoggerFactory.getLogger(OpenAPI.class);	
 
 	// Define all needed attributes
-	private String netstorageClient, netstorageKey, netstorageHost, purgeClientSecret, purgeHost,
+	@Getter @Setter private String netstorageClient, netstorageKey, netstorageHost, purgeClientSecret, purgeHost,
 			purgeAccessToken, purgeClientToken, apiClientSecret, apiHost, apiAccessToken,
 			apiClientToken;
 	
 	@Getter @Setter private String hostname;
-	@Getter @Setter private String apiClientName="api-client";
-	@Getter @Setter private String apiClientPurgeName="api-client-purge";
-	@Getter @Setter private String apiUploadAccountName="api-upload-account";
+	@Getter @Setter private String edgercFileName = ".edgerc";
+	@Getter @Setter private String edgercFilePath = "";
+	@Getter private String apiClientName;
+	@Getter private String apiClientPurgeName;
+	@Getter private String apiUploadAccountName;
 	@Getter @Setter private String apiPurgeInvalidateEndpoint;
 	@Getter @Setter private String apiPurgeInvalidateCPCodeEndpoint;
 	@Getter @Setter private String apiPurgeInvalidateTagEndpoint;
@@ -78,110 +76,130 @@ public class OpenAPI {
 	@Getter @Setter private String apiPapiListCPCodesEndpoint;
 	@Getter @Setter private String apiPapiCreateCPCodesEndpoint;
 	@Getter @Setter private String apiPapiListProductsEndpoint;
+	@Getter @Setter private Wini edgerc;
 	
 	// Credential objects needed for the different Akamai OPEN API endpoints
 	@Getter @Setter private ClientCredential purgeCredential;
 	@Getter @Setter private ClientCredential apiCredential;
 	@Getter @Setter private DefaultCredential netstorageCredential;
-	
-	public OpenAPI(String propertyFilePath, String hostname, boolean debug) {
-		setHostname(hostname);
-		OpenAPI.logger.debug("Host: " + this.getHostname());
-		OpenAPI.logger = Logger.getLogger(OpenAPI.class);	
 
-
-		/*TODO Debug flag support
-		if (debug) {
-			this.logger.setLevel(Level.DEBUG);
-		} else {
-			this.logger.setLevel(Level.INFO);
-		}
-		*/
-
+	public OpenAPI() {
 		Wini iniAPI = null;
-		Wini edgerc = null;
+		InputStream is = OpenAPI.class.getResourceAsStream("/application.properties");
 		try {
-			
-			InputStream is = OpenAPI.class.getResourceAsStream("/application.properties");
 			iniAPI = new Wini(is);
-			//api-endpoints
-			this.setApiPurgeInvalidateEndpoint(iniAPI.get("api-endpoints","apiPurgeInvalidateEndpoint"));			
-			this.setApiPurgeInvalidateCPCodeEndpoint(iniAPI.get("api-endpoints","apiPurgeInvalidateCPCodeEndpoint"));
-			this.setApiPapiSearchEndpoint(iniAPI.get("api-endpoints","apiPapiSearchEndpoint"));
-			this.setApiPapiGetEndpoint(iniAPI.get("api-endpoints","apiPapiGetEndpoint"));
-			this.setApiPapiGetRuletreeEndpoint(iniAPI.get("api-endpoints","apiPapiGetRuletreeEndpoint"));
-			this.setApiDiagnosticToolsUrlDebugEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsUrlDebugEndpoint"));
-			this.setApiDiagnosticToolsTranslatedErrorEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsTranslatedErrorEndpoint"));
-			this.setApiDiagnosticToolsGetLogLinesFromIPEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsGetLogLinesFromIPEndpoint"));
-			this.setApiPapiListCPCodesEndpoint(iniAPI.get("api-endpoints","apiPapiListCPCodesEndpoint"));
-			this.setApiPapiCreateCPCodesEndpoint(iniAPI.get("api-endpoints","apiPapiCreateCPCodesEndpoint"));
-			this.setApiPapiListProductsEndpoint(iniAPI.get("api-endpoints","apiPapiListProductsEndpoint"));
-			
-			
-			//retrieve credentials
-			edgerc = new Wini(new File(propertyFilePath));			
-									
-			//api-client-purge
-			if(!edgerc.containsKey(this.getApiClientPurgeName())){
-				OpenAPI.logger.info("Credentials section api-client-purge is missing");
-				System.exit(1);
-			}else{
-				this.setPurgeAccessToken(edgerc.get(this.getApiClientPurgeName(),"access_token"));
-				OpenAPI.logger.debug("Purge Access Token: " + this.getPurgeAccessToken());
-				this.setPurgeClientSecret(edgerc.get(this.getApiClientPurgeName(),"client_secret"));
-				OpenAPI.logger.debug("Purge Client Secret: " + this.getPurgeClientSecret());
-				this.setPurgeClientToken(edgerc.get(this.getApiClientPurgeName(),"client_token"));
-				OpenAPI.logger.debug("Purge Client Token: " + this.getPurgeClientToken());
-				this.setPurgeHost(edgerc.get(this.getApiClientPurgeName(),"host"));
-				OpenAPI.logger.debug("Purge Client Host: " + this.getPurgeHost());				
-			}
-
-				
-			//api-client
-			if(!edgerc.containsKey(this.getApiClientName())){
-				OpenAPI.logger.info("Credentials section api-client is missing");
-				System.exit(1);
-			}else{
-				this.setApiClientSecret(edgerc.get(this.getApiClientName(),"client_secret"));
-				OpenAPI.logger.debug("API Client Secret: " + this.getApiClientSecret());
-				this.setApiHost(edgerc.get(this.getApiClientName(),"host"));
-				OpenAPI.logger.debug("API Host: " + this.getApiHost());
-				this.setApiAccessToken(edgerc.get(this.getApiClientName(),"access_token"));
-				OpenAPI.logger.debug("API Access Token: " + this.getApiAccessToken());
-				this.setApiClientToken(edgerc.get(this.getApiClientName(),"client_token"));
-				OpenAPI.logger.debug("API Client Token: " + this.getApiClientToken());				
-			}
-			
-			//api-upload-account
-			if(!edgerc.containsKey(this.getApiUploadAccountName())){
-				OpenAPI.logger.info("Credentials section api-upload-account is missing");
-				System.exit(1);
-			}else{
-				this.setNetstorageClient(edgerc.get(getApiUploadAccountName(),"client"));
-				OpenAPI.logger.debug("Netstorage Client: " + this.getNetstorageClient());
-				this.setNetstorageHost(edgerc.get(getApiUploadAccountName(),"host"));
-				OpenAPI.logger.debug("Netstorage Host: " + this.getNetstorageHost());
-				this.setNetstorageKey(edgerc.get(getApiUploadAccountName(),"key"));
-				OpenAPI.logger.debug("Netstorage Key: " + this.getNetstorageKey());
-			}
-
+		} catch (InvalidFileFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		// Create the EdgeGrid credential object
-		// NOTE: DEFAULT_MAX_BODY_SIZE_IN_BYTES = 131072;
+		this.setApiPurgeInvalidateEndpoint(iniAPI.get("api-endpoints","apiPurgeInvalidateEndpoint"));			
+		this.setApiPurgeInvalidateCPCodeEndpoint(iniAPI.get("api-endpoints","apiPurgeInvalidateCPCodeEndpoint"));
+		this.setApiPapiSearchEndpoint(iniAPI.get("api-endpoints","apiPapiSearchEndpoint"));
+		this.setApiPapiGetEndpoint(iniAPI.get("api-endpoints","apiPapiGetEndpoint"));
+		this.setApiPapiGetRuletreeEndpoint(iniAPI.get("api-endpoints","apiPapiGetRuletreeEndpoint"));
+		this.setApiDiagnosticToolsUrlDebugEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsUrlDebugEndpoint"));
+		this.setApiDiagnosticToolsTranslatedErrorEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsTranslatedErrorEndpoint"));
+		this.setApiDiagnosticToolsGetLogLinesFromIPEndpoint(iniAPI.get("api-endpoints","apiDiagnosticToolsGetLogLinesFromIPEndpoint"));
+		this.setApiPapiListCPCodesEndpoint(iniAPI.get("api-endpoints","apiPapiListCPCodesEndpoint"));
+		this.setApiPapiCreateCPCodesEndpoint(iniAPI.get("api-endpoints","apiPapiCreateCPCodesEndpoint"));
+		this.setApiPapiListProductsEndpoint(iniAPI.get("api-endpoints","apiPapiListProductsEndpoint"));
+	}
+	
+	public OpenAPI(String hostname) {
+		this();
+		this.setHostname(hostname);
+		OpenAPI.LOGGER.debug("Host: " + this.getHostname());
+	}
+	
+	public OpenAPI(String hostname, String edgercFilePath){
+		this(hostname);
+		this.initEdgercFile(edgercFilePath);			
+	}
+
+	public OpenAPI(String hostname, String edgercFilePath, boolean debug){
+		this(hostname, edgercFilePath);
+		//If a boolean is not assigned a value (say a member of a class) then it will be false by default.
+		//Turn debug on or off
+	}
+	protected void initApiCredentialsPurge() {
+		if(!getEdgerc().containsKey(this.getApiClientPurgeName())){
+			OpenAPI.LOGGER.info("Credentials section api-client-purge is missing");
+			System.exit(1);
+		}else{
+			this.setPurgeClientSecret(getEdgerc().get(this.getApiClientPurgeName(),"client_secret"));
+			OpenAPI.LOGGER.debug("Purge Client Secret: " + this.getPurgeClientSecret());
+			this.setPurgeHost(getEdgerc().get(this.getApiClientPurgeName(),"host"));
+			OpenAPI.LOGGER.debug("Purge Client Host: " + this.getPurgeHost());
+			this.setPurgeAccessToken(getEdgerc().get(this.getApiClientPurgeName(),"access_token"));
+			OpenAPI.LOGGER.debug("Purge Access Token: " + this.getPurgeAccessToken());
+			this.setPurgeClientToken(getEdgerc().get(this.getApiClientPurgeName(),"client_token"));
+			OpenAPI.LOGGER.debug("Purge Client Token: " + this.getPurgeClientToken());
+	
+		}
 		this.setPurgeCredential(ClientCredential.builder().accessToken(this.getPurgeAccessToken())
 				.clientSecret(this.getPurgeClientSecret()).clientToken(this.getPurgeClientToken())
 				.host(this.getPurgeHost()).build());
+	}
+	
+	protected void initApiCredentialsNetStorage() {
+		if(!getEdgerc().containsKey(this.getApiUploadAccountName())){
+			OpenAPI.LOGGER.info("Credentials section api-upload-account is missing");
+			System.exit(1);
+		}else{
+			this.setNetstorageClient(getEdgerc().get(getApiUploadAccountName(),"client"));
+			OpenAPI.LOGGER.debug("Netstorage Client: " + this.getNetstorageClient());
+			this.setNetstorageHost(getEdgerc().get(getApiUploadAccountName(),"host"));
+			OpenAPI.LOGGER.debug("Netstorage Host: " + this.getNetstorageHost());
+			this.setNetstorageKey(getEdgerc().get(getApiUploadAccountName(),"key"));
+			OpenAPI.LOGGER.debug("Netstorage Key: " + this.getNetstorageKey());
+		}
+		
+		this.setNetstorageCredential(new DefaultCredential(this.getNetstorageHost(), this.getNetstorageClient(),
+				this.getNetstorageKey()));
+	}
+	
+	protected void initApiCredentials() {
+		if(!getEdgerc().containsKey(this.getApiClientName())){
+			OpenAPI.LOGGER.info("Credentials section api-client is missing");
+			System.exit(1);
+		}else{
+			this.setApiClientSecret(getEdgerc().get(this.getApiClientName(),"client_secret"));
+			OpenAPI.LOGGER.debug("API Client Secret: " + this.getApiClientSecret());
+			this.setApiHost(getEdgerc().get(this.getApiClientName(),"host"));
+			OpenAPI.LOGGER.debug("API Host: " + this.getApiHost());
+			this.setApiAccessToken(getEdgerc().get(this.getApiClientName(),"access_token"));
+			OpenAPI.LOGGER.debug("API Access Token: " + this.getApiAccessToken());
+			this.setApiClientToken(getEdgerc().get(this.getApiClientName(),"client_token"));
+			OpenAPI.LOGGER.debug("API Client Token: " + this.getApiClientToken());				
+		}
 		this.setApiCredential(
 				ClientCredential.builder().accessToken(this.getApiAccessToken()).clientSecret(this.getApiClientSecret())
 						.clientToken(this.getApiClientToken()).host(this.getApiHost()).build());
-		this.netstorageCredential = new DefaultCredential(this.getNetstorageHost(), this.getNetstorageClient(),
-				this.getNetstorageKey());
 	}
-
+	
+	protected void initEdgercFile(String edgercFilePath) {
+		if(edgercFilePath != null){ 
+			//Set the path to the edgerc file provided by the user
+			this.setEdgercFilePath(edgercFilePath);
+		}else{
+			//Set default .edgerc path if no edgerc file path has been provided by the user.
+			this.setEdgercFilePath(System.getProperty("user.home")+"/"+getEdgercFileName());
+		}
+		OpenAPI.LOGGER.debug("edgercFilePath: " + this.getEdgercFileName());
+		try {
+			setEdgerc(new Wini(new File(getEdgercFilePath())));
+		} catch (InvalidFileFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 
 	public String getEdgeAuthToken(String path, String encrpytionKey, Integer duration, String tokenName, Integer startTime){
 		String url = null;
@@ -202,209 +220,7 @@ public class OpenAPI {
 			}
 		return url;
 	}
-
-	/*
-	public static AkamaiTokenConfig GenerateConfig(String url, String key, long window) throws Exception {
-		AkamaiTokenConfig config = new AkamaiTokenConfig();
-		
-		config.setAlgo(Algorithm.SHA256);
-		// key
-		config.setKey(key);
-		// start_time
-		//config.setStartTime(Instant.now().getEpochSecond());
-		config.setStartTime(System.currentTimeMillis()/1000);
-		// window
-		config.setWindow(window);
-		// url
-		config.setAcl(url);
-		config.setIsUrl(true);
-		return config;
-	}
-	*/
-
-	private String getEdgeAuthFromPapiRuleSet(String papiRuleSetJson) {
-		String papiRuleSetJsonNew = papiRuleSetJson.replaceAll("\\r?\\n?\\s", "");
-		this.logger.debug("papiRuleSetJson:" + papiRuleSetJsonNew);
-		String edgeauth = null;
-		// String pattern =
-		// "\\{\"name\":\"verifyTokenAuthorization\"[^\\}\\}]*";
-		// String pattern = ".*verifyTokenAuthorization.*";
-		String pattern = "verifyTokenAuthorization.*";
-
-		Pattern r = Pattern.compile(pattern);
-		Matcher m = r.matcher(papiRuleSetJsonNew);
-		if (m.matches()) {
-			this.logger.debug("m1.group().length():" + m.group().length());
-			this.logger.debug("m1.group(1):" + m.group(0));
-			edgeauth = m.group(0);
-		}
-		return edgeauth;
-	}
-
-	public String getEdgeAuthKeyFromPapiRuleSet_(String papiRuleSetJson) {
-		String edgeauthKey = null;
-		String pattern = "^.*key\".:.\"(.*)\",.*failureResponse.*";
-		// String pattern = "^.*key\".:.\"(.*)\",.*";
-		Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
-		Matcher m = r.matcher(papiRuleSetJson);
-		if (m.matches()) {
-			this.logger.debug("m.group().length():" + m.group().length());
-			this.logger.debug("m.group(1):" + m.group(1));
-			edgeauthKey = m.group(1);
-		}
-		return edgeauthKey;
-
-	}
-	public String getEdgeAuthKeyFromPapiRuleSet(String papiRuleSetJson) {
-		
-		String edgeauthKey = null;
-		//Try to find inside Advanced Section
-		try{
-			String pattern = "<key>(.+?)</key>";
-			Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
-			Matcher m = r.matcher(papiRuleSetJson);
-			m.find();
-			edgeauthKey = m.group(1);
-			this.logger.debug("m.group(1):" + m.group(1));			
-		}catch(java.lang.IllegalStateException e){
-			//Try to find inside JSON
-			String pattern = ".*\"key\".:.\"(.+?)\",.*";
-			Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
-			Matcher m = r.matcher(papiRuleSetJson);
-			m.find();
-			edgeauthKey = m.group(1);
-			this.logger.debug("m.group(1):" + m.group(1));
-		}
-
-		return edgeauthKey;
-	}
-
-	public String getEdgeAuthLocationFromPapiRuleSet(String papiRuleSetJson) {
-		String edgeauthKey = null;
-		String pattern = "^.*locationId\".:.\"(.*)\",.*key.*";
-		Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
-		Matcher m = r.matcher(papiRuleSetJson);
-		if (m.matches()) {
-			this.logger.debug("m.group().length():" + m.group().length());
-			this.logger.debug("m.group(1):" + m.group(1));
-			edgeauthKey = m.group(1);
-		}
-		return edgeauthKey;
-	}
-
-
-	public boolean doPurgeInvalidate(String purgeJSON) {
-		return doPurgeInvalidate(purgeJSON, false);
-	}
 	
-	public boolean doPurgeInvalidate(String purgeJSON, Boolean isStaging) {
-		boolean purgeExecuted = false;
-		this.logger.debug("purgeJSON:\n" + purgeJSON);
-		// Use com.google.api.client.http Helper for HTTP Request
-		HttpTransport httpTransport = new ApacheHttpTransport();
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		URI uri = null;
-		HttpRequest request = null;
-		//Get the current Purge API Endpoint
-		String purgeInvalidateEndpoint = this.getApiPurgeInvalidateEndpoint();
-		if(isStaging){
-			//In case isStaging is TRUE modify Purge API Endpoint to purge staging instead of production
-			purgeInvalidateEndpoint = purgeInvalidateEndpoint.replaceAll("production", "staging");
-		}		
-		try {
-			uri = new URI("https", this.getPurgeHost(), purgeInvalidateEndpoint, null, null);
-			// Ensure to use Content-Type application/json
-			request = requestFactory.buildPostRequest(new GenericUrl(uri),
-					ByteArrayContent.fromString("application/json", purgeJSON));
-			request.setReadTimeout(0);
-
-			// Some logging
-			this.logger.debug("request.getUrl():" + request.getUrl());
-			this.logger.debug("request.getRequestMethod():" + request.getRequestMethod());
-
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getPurgeCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			if (response.getStatusCode() == 201)
-				purgeExecuted = true;
-			// Log the response
-			this.logger.debug("response.getStatusCode():" + response.getStatusCode());
-			this.logger.debug("response.parseAsString():" + response.parseAsString());
-
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return purgeExecuted;
-	}
-
-	public boolean doPurgeInvalidateCPCode(String cpcode) {
-		return doPurgeInvalidateCPCode(cpcode, false);
-	}
-	
-	public boolean doPurgeInvalidateCPCode(String cpcode, Boolean isStaging) {
-		boolean purgeExecuted = false;
-		this.logger.debug("purge CPCode:\n" + cpcode);
-		cpcode = "{\"objects\":["+cpcode+"]}";
-		// Use com.google.api.client.http Helper for HTTP Request
-		HttpTransport httpTransport = new ApacheHttpTransport();
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		URI uri = null;
-		HttpRequest request = null;
-		//Get the current Purge API Endpoint
-		String purgeCPCodeInvalidateEndpoint = this.getApiPurgeInvalidateCPCodeEndpoint();
-		if(isStaging){
-			//In case isStaging is TRUE modify Purge API Endpoint to purge staging instead of production
-			purgeCPCodeInvalidateEndpoint = purgeCPCodeInvalidateEndpoint.replaceAll("production", "staging");
-		}	
-		try {
-			uri = new URI("https", this.getPurgeHost(), purgeCPCodeInvalidateEndpoint, null, null);
-			// Ensure to use Content-Type application/json
-			request = requestFactory.buildPostRequest(new GenericUrl(uri),
-					ByteArrayContent.fromString("application/json", cpcode));
-			request.setReadTimeout(0);
-
-			// Some logging
-			this.logger.debug("request.getUrl():" + request.getUrl());
-			this.logger.debug("request.getRequestMethod():" + request.getRequestMethod());
-
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getPurgeCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			if (response.getStatusCode() == 201)
-				purgeExecuted = true;
-			// Log the response
-			this.logger.debug("response.getStatusCode():" + response.getStatusCode());
-			this.logger.debug("response.parseAsString():" + response.parseAsString());
-
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return purgeExecuted;
-
-	}	
-		
 	public static String jsonFileReader(String path) throws IOException {
 		String content = null;
 		try {
@@ -421,7 +237,7 @@ public class OpenAPI {
 		File file = new File(path);
 		FileInputStream fis = null;
 		fis = new FileInputStream(file);
-		this.logger.debug("filezise(" + path + "):" + fis.available());
+		OpenAPI.LOGGER.debug("filezise(" + path + "):" + fis.available());
 		return fis;
 	}
 
@@ -479,124 +295,6 @@ public class OpenAPI {
 			}
 		}
 		return prop;
-	}
-
-
-/*
-	public NetStorage getNetstorage() {
-		return netstorage;
-	}
-
-	public void setNetstorage(NetStorage netstorage) {
-		this.netstorage = netstorage;
-	}
-*/
-	public String getNetstorageClient() {
-		return netstorageClient;
-	}
-
-	public void setNetstorageClient(String netstorageClient) {
-		this.netstorageClient = netstorageClient;
-	}
-
-	public String getNetstorageKey() {
-		return netstorageKey;
-	}
-
-	public void setNetstorageKey(String netstorageKey) {
-		this.netstorageKey = netstorageKey;
-	}
-
-	public String getNetstorageHost() {
-		return netstorageHost;
-	}
-
-	public void setNetstorageHost(String netstorageHost) {
-		this.netstorageHost = netstorageHost;
-	}
-
-	public String getPurgeClientSecret() {
-		return purgeClientSecret;
-	}
-
-	public void setPurgeClientSecret(String purgeClientSecret) {
-		this.purgeClientSecret = purgeClientSecret;
-	}
-
-	public String getPurgeHost() {
-		return purgeHost;
-	}
-
-	public void setPurgeHost(String purgeHost) {
-		this.purgeHost = purgeHost;
-	}
-
-	public String getPurgeAccessToken() {
-		return purgeAccessToken;
-	}
-
-	public void setPurgeAccessToken(String purgeAccessToken) {
-		this.purgeAccessToken = purgeAccessToken;
-	}
-
-	public String getPurgeClientToken() {
-		return purgeClientToken;
-	}
-
-	public void setPurgeClientToken(String purgeClientToken) {
-		this.purgeClientToken = purgeClientToken;
-	}
-
-
-
-	public String getApiClientSecret() {
-		return apiClientSecret;
-	}
-
-	public void setApiClientSecret(String apiClientSecret) {
-		this.apiClientSecret = apiClientSecret;
-	}
-
-	public String getApiHost() {
-		return apiHost;
-	}
-
-	public void setApiHost(String apiHost) {
-		this.apiHost = apiHost;
-	}
-
-	public String getApiAccessToken() {
-		return apiAccessToken;
-	}
-
-	public void setApiAccessToken(String apiAccessToken) {
-		this.apiAccessToken = apiAccessToken;
-	}
-
-	public String getApiClientToken() {
-		return apiClientToken;
-	}
-
-	public void setApiClientToken(String apiClientToken) {
-		this.apiClientToken = apiClientToken;
-	}
-
-
-
-
-
-
-	public String doUrlDebug(String url, String edgeip, ArrayList<String> header) {
-		DiagnosticToolsAPI dt = new DiagnosticToolsAPI(this);
-		UrlDebug urlDebug = null;
-		if(edgeip!=null&&header.isEmpty()){
-			urlDebug =  dt.urlDebug(url);
-		}else if(header.isEmpty()){
-			urlDebug =  dt.urlDebug(url, edgeip);
-		}else{
-			urlDebug = dt.urlDebug(url, edgeip, header);
-		}
-		return urlDebug.getUrlDebug().getResponseHeaders().toString();
 	}
 	
 	public String doEdgeGridAPIRequest(String apiRequestUrl) {
@@ -677,4 +375,34 @@ public class OpenAPI {
 		return apiEndPointURL;
 	}
 	
+	protected void setApiClientName(String s){
+		if(isNullOrBlank(s)){
+			this.apiClientName = "api-client";
+		}else{
+			this.apiClientName = s;
+		}	
+		OpenAPI.LOGGER.debug("apiClientName: " + this.getApiClientName());
+	}
+	
+	protected void setApiClientPurgeName(String s){
+		if(isNullOrBlank(s)){
+			this.apiClientPurgeName = "api-client-purge";
+		}else{
+			this.apiClientPurgeName = s;
+		}	
+		OpenAPI.LOGGER.debug("apiClientPurgeName: " + this.getApiClientPurgeName());
+	}
+	
+	protected void setApiUploadAccountName(String s){
+		if(isNullOrBlank(s)){
+			this.apiUploadAccountName = "api-upload-account";
+		}else{
+			this.apiUploadAccountName = s;
+		}	
+		OpenAPI.LOGGER.debug("apiUploadAccountName: " + this.getApiUploadAccountName());
+	}	
+	private static boolean isNullOrBlank(String s)
+	{
+	  return (s==null || s.trim().equals(""));
+	}
 }

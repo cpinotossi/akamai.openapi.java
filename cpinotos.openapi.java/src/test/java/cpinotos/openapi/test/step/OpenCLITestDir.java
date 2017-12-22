@@ -12,8 +12,7 @@ public class OpenCLITestDir extends MyTestParameters {
 		
 	@Before
 	public void before() {
-		setOpenAPI(new OpenAPI(getConfigPath(), getHost(), isDebug()));
-		setNsapi(new NetStorageAPI(getOpenAPI()));
+		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), getApiUploadAccountName(), isDebug()));
 	}
 	
 	@Test

@@ -24,8 +24,13 @@ import cpinotos.openapi.services.data.TranslatedError;
 import cpinotos.openapi.services.data.UrlDebug;
 
 
-public class DiagnosticToolsAPI {
-private OpenAPI openAPI;
+public class DiagnosticToolsAPI extends OpenAPI {
+
+public DiagnosticToolsAPI(String hostname, String edgercFilePath, String apiClientNameSection, boolean debug){
+	super(hostname, edgercFilePath, debug);
+	this.setApiClientName(apiClientNameSection);
+	initApiCredentials();
+}
 
 public static void main(String[] args) throws UnknownHostException, UnsupportedEncodingException{
 	//Expected IP 23.50.55.45
@@ -72,12 +77,17 @@ public static String getDebugStringforGHostIP(String reqIpAddr){
 	return hex;
 }
 
-
-
-	public DiagnosticToolsAPI(OpenAPI openAPI){
-		this.openAPI=openAPI;
+public String doUrlDebug(String url, String edgeip, ArrayList<String> header) {
+	UrlDebug urlDebug = null;
+	if(edgeip!=null&&header.isEmpty()){
+		urlDebug =  this.urlDebug(url);
+	}else if(header.isEmpty()){
+		urlDebug =  this.urlDebug(url, edgeip);
+	}else{
+		urlDebug = this.urlDebug(url, edgeip, header);
+	}
+	return urlDebug.getUrlDebug().getResponseHeaders().toString();
 }
-
 
 public UrlDebug urlDebug(String url){
 	//TODO Maybe we should allow different search parameters
@@ -101,20 +111,20 @@ public UrlDebug urlDebug(String url, String edgeIP, ArrayList<String> headerList
 
 public UrlDebug doUrlDebug(String apiQuery){
 	UrlDebug urlDebugResult = null;
-	String apiPath = this.openAPI.getApiDiagnosticToolsUrlDebugEndpoint()+apiQuery;
+	String apiPath = this.getApiDiagnosticToolsUrlDebugEndpoint()+apiQuery;
 	// Use com.google.api.client.http Helper for HTTP Request
 	HttpTransport httpTransport = new ApacheHttpTransport();
 	HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
 	URI uri = null;
 	HttpRequest request = null;
 	try {
-		uri = new URI("https://" + openAPI.getApiHost() + apiPath);		
+		uri = new URI("https://" + this.getApiHost() + apiPath);		
 		// Ensure to use Content-Type application/json
 		request = requestFactory.buildGetRequest(new GenericUrl(uri));
 		request.setReadTimeout(0);
 		// Create a new EdgeGrid Signer Object
 		GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-				openAPI.getApiCredential());
+				this.getApiCredential());
 		// Sign the request
 		requestSigner.sign(request);
 		// send the request to the OPEN API Interface via HTTP POST
@@ -136,30 +146,30 @@ public UrlDebug doUrlDebug(String apiQuery){
 }
 
 public TranslatedError doTranslateError(String errorString){
-	String currentApiPapiEndpoint = this.openAPI.getApiDiagnosticToolsTranslatedErrorEndpoint();
+	String currentApiPapiEndpoint = this.getApiDiagnosticToolsTranslatedErrorEndpoint();
 	currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{errorCode}", errorString);
 	Gson gson = new Gson();
-	return gson.fromJson(this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint), TranslatedError.class);
+	return gson.fromJson(this.doEdgeGridAPIRequest(currentApiPapiEndpoint), TranslatedError.class);
 }
 
 
 
 public LogLines doGetLogLinesFromIP(String ipAddress, String endTime, String arl, String clientIp, String cpCode, String duration, String hostHeader, String httpStatusCode, String logType, String maxLogLines, String objStatus, String requestId, String userAgent){
-	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.openAPI.getApiDiagnosticToolsGetLogLinesFromIPEndpoint(), "ipAddress", ipAddress);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "endTime", endTime);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "arl", arl);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "clientIp", clientIp);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "cpCode", cpCode);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "duration", duration);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "hostHeader", hostHeader);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "httpStatusCode", httpStatusCode);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "logType", logType);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "maxLogLines", maxLogLines);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "objStatus", objStatus);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "requestId", requestId);
-	currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(currentApiPapiEndpoint, "userAgent", userAgent);
+	String currentApiPapiEndpoint = this.addValueToAPIEndPointURL(this.getApiDiagnosticToolsGetLogLinesFromIPEndpoint(), "ipAddress", ipAddress);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "endTime", endTime);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "arl", arl);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "clientIp", clientIp);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "cpCode", cpCode);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "duration", duration);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "hostHeader", hostHeader);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "httpStatusCode", httpStatusCode);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "logType", logType);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "maxLogLines", maxLogLines);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "objStatus", objStatus);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "requestId", requestId);
+	currentApiPapiEndpoint = this.addValueToAPIEndPointURL(currentApiPapiEndpoint, "userAgent", userAgent);
 	Gson gson = new Gson();
-	return gson.fromJson(this.openAPI.doEdgeGridAPIRequest(currentApiPapiEndpoint), LogLines.class);
+	return gson.fromJson(this.doEdgeGridAPIRequest(currentApiPapiEndpoint), LogLines.class);
 }
 
 
