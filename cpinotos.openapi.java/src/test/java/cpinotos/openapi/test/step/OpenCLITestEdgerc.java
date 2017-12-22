@@ -7,11 +7,11 @@ import org.junit.Test;
 import cpinotos.openapi.services.PropertyManagerAPI;
 
 public class OpenCLITestEdgerc extends MyTestParameters {
-		
+
 
 	@Test
 	public void test1() throws Exception {
-		setPapi(new PropertyManagerAPI(this.getHostname(), null, this.getApiClientName(), this.isDebug()));
+		setPapi(new PropertyManagerAPI(this.getHostname(), null, this.getApiClientNameDefault(), this.isDebug()));
 		LOGGER.info("PropertyManagerAPI 1");
 		assertTrue(!this.getPapi().doListCPCodes().equals(null));
 	}
@@ -39,17 +39,23 @@ public class OpenCLITestEdgerc extends MyTestParameters {
 	
 	@Test
 	public void test5() throws Exception {
-		setPapi(new PropertyManagerAPI(getHostname(), getEdgercFilePath1(), this.getApiClientName(), false));
+		setPapi(new PropertyManagerAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameDefault(), false));
 		LOGGER.info("PropertyManagerAPI 5");
 		assertTrue(!this.getPapi().doListCPCodes().equals(null));
 	}
 	
 	@Test
 	public void test6() throws Exception {
-		setPapi(new PropertyManagerAPI(getHostname(), getEdgercFilePath1(), this.getApiClientName(), this.isDebug()));
+		setPapi(new PropertyManagerAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameDefault(), this.isDebug()));
 		LOGGER.info("PropertyManagerAPI 6");
 		assertTrue(!this.getPapi().doListCPCodes().equals(null));
 	}
-	
+
+	@Test
+	public void test7() throws Exception {
+		setPapi(new PropertyManagerAPI(getHostname(), getEdgercFilePath2(), this.getApiClientNameDefault(), this.isDebug()));
+		LOGGER.info("PropertyManagerAPI 7");
+		assertTrue(!this.getPapi().doListCPCodes().equals(null));
+	}
 
 }

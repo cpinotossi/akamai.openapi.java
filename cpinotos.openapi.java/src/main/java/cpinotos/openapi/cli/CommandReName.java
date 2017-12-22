@@ -6,8 +6,8 @@ import com.beust.jcommander.Parameters;
 
 @Parameters(commandDescription = "Create SymLink on Netstorage")
 public class CommandReName {
-	@Parameter(names = { "--in", "-i" }, description = "original Path", required = true)
+	@Parameter(names = { "--in", "-i" }, description = "Original Path, Path to netstorage, including CPCode Folder (e.g. /599907/my/old.txt)", required = true)
 	public String in;
-	@Parameter(names = { "--out", "-o" }, description = "new path", required = true)
+	@Parameter(names = { "--out", "-o" }, description = "New Path, Path to netstorage, including CPCode Folder (e.g. /599907/my/new.txt)", required = true)
 	public String out;
 }

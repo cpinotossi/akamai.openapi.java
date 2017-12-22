@@ -313,7 +313,11 @@ public class OpenCLI {
 			puapi = new PurgeAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
 			// invalidate content based on
 			OpenAPI.LOGGER.info("Start invalidate:");
-			puapi.doPurgeInvalidate(cmdPurge.in, cmdPurge.staging);
+			if(cmdPurge.urllist.size()>0){
+				puapi.doPurgeInvalidate(cmdPurge.urllist, cmdPurge.staging);	
+			}else{
+				puapi.doPurgeInvalidate(cmdPurge.jsonPath, cmdPurge.staging);	
+			}
 			OpenAPI.LOGGER.info("done");
 			break; // optional
 		case "invalidate_cpcode":

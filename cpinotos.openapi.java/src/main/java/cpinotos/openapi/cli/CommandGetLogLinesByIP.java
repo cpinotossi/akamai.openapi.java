@@ -4,7 +4,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 
-@Parameters(commandDescription = "Upload files to Netstorage")
+@Parameters(commandDescription = "Lists log lines from an IP address within the Akamai network, using parameters to filter the data. Logs provide low-level details on how each request was handled, which you can use to troubleshoot caching and performance issues, and to ensure the correct set of Akamai features was applied to the traffic. Data is generally available for 48 hours after the traffic occurs.")
 public class CommandGetLogLinesByIP {
 	@Parameter(names = { "--ipAddress", "-i" }, description = "String	1.1.1.1	The IP address of the server from which to run the diagnostics test.", required = true)
 	public String ipAddress;

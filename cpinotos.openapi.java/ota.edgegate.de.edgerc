@@ -10,7 +10,7 @@ host = akab-zrboh4xavosy5eyy-y3nrvyngykndmcew.purge.akamaiapis.net
 access_token = akab-2he37qeodnpslw76-isyotdrez2gq5b7n
 client_token = akab-awrwncksdcm7clls-4f7zpsh7mzplq6nb
 
-[api-upload-account]
+[api-client-netstorage]
 client = otatest1
 key = 8t4U9GBPOBm4cvU3EsGw8u3b2BCNr371TAyqqj2c32DsZ3m5Ep
 host = ionstandard3-nsu.akamaihd.net = nestorage-upload-account

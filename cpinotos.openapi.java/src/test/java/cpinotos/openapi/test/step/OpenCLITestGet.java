@@ -15,17 +15,12 @@ import io.github.bonigarcia.SeleniumExtension;
 @ExtendWith(SeleniumExtension.class)
 public class OpenCLITestGet extends MyTestParameters {
 	static ChromeDriver chromeDriver;
-
+	
 	 @BeforeClass
      public static void openBrowser(){
 		 chromeDriver = new ChromeDriver();
 		} 
 	 
-	@Before
-	public void before() {
-		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), getApiUploadAccountName(), isDebug()));
-	}
-
 
 	@Test
     public void testWithChrome() {

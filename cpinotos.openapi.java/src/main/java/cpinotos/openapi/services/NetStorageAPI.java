@@ -33,7 +33,7 @@ public class NetStorageAPI extends OpenAPI{
 
 public NetStorageAPI(String hostname, String edgercFilePath, String apiUploadAccountNameSection, boolean debug){
 	super(hostname, edgercFilePath, debug);
-	this.setApiUploadAccountName(apiUploadAccountNameSection);	
+	this.setApiClientNameNetStorage(apiUploadAccountNameSection);	
 	initApiCredentialsNetStorage();
 	this.setNetStorage(new NetStorage(this.getNetstorageCredential()));
 }

@@ -14,7 +14,7 @@ public class OpenCLITestDeleteFolder extends MyTestParameters {
 
 	@Before
 	public void before() {
-		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), getApiUploadAccountName(), isDebug()));
+		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), getApiClientNameNetStorageDefault(), isDebug()));
 	}
 
 
