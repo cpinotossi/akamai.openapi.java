@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Purge Request Body",
+    "description": "Specifies a list of server paths to invalidate or delete for a common `hostname`.",
+    "type": "object",
+    "required": [ "objects" ],
+    "properties": {
+        "objects": {
+            "type": "array",
+            "items": {
+                "description": "Lists server paths. Purges content for both `http` and `https` schemes.",
+                "type": "string"
+            }
+        },
+        "hostname": {
+            "description": "Identifies the domain from which the content is purged.",
+            "type": "string"
+        }
+    }
+}

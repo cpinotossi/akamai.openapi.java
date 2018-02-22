@@ -1,37 +1,36 @@
 package cpinotos.openapi.services;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.akamai.edgegrid.signer.exceptions.RequestSigningException;
-import com.akamai.edgegrid.signer.googlehttpclient.GoogleHttpClientEdgeGridRequestSigner;
-import com.google.api.client.http.ByteArrayContent;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.apache.ApacheHttpTransport;
+import org.apache.http.client.ClientProtocolException;
+
+import com.google.gson.Gson;
 
 import cpinotos.openapi.OpenAPI;
+import cpinotos.openapi.services.data.PollingResponse;
+import cpinotos.openapi.services.data.Response;
 
 public class PurgeAPI extends OpenAPI {
 
 	public PurgeAPI(String hostname, String edgercFilePath, String apiClientPurgeNameSection, boolean debug) {
 		super(hostname, edgercFilePath, debug);
 		this.setApiClientNamePurge(apiClientPurgeNameSection);
-		initApiCredentialsPurge();
+		initApiCredentials(this.getApiClientNamePurge());
 	}
 
-	public boolean doPurgeInvalidate(String purgeJSON) {
+	public boolean doPurgeInvalidate(String purgeJSON) throws ClientProtocolException, UnsupportedOperationException, IOException {
 		return doPurgeInvalidate(purgeJSON, false);
 	}
 
-	public boolean doPurgeInvalidate(ArrayList<String> urlList, Boolean isStaging) {
-		boolean purgeExecuted = false;
+	public boolean doPurgeInvalidate(ArrayList<String> urlList, Boolean isStaging) throws ClientProtocolException, UnsupportedOperationException, IOException {
+		// Define Network which should be purged
+		String network = "production";
+		if(isStaging){
+			network = "staging";
+		}
+		// Generate JSON from ArrayList
 		String purgeJSON;
 		Iterator<String> i = urlList.iterator();
 		purgeJSON = "{\"objects\":[";
@@ -41,166 +40,65 @@ public class PurgeAPI extends OpenAPI {
 		purgeJSON = purgeJSON.substring(0, purgeJSON.length() - 1);
 		purgeJSON += "]}";
 		OpenAPI.LOGGER.debug("purgeJSON:\n" + purgeJSON);
-		// Use com.google.api.client.http Helper for HTTP Request
-		HttpTransport httpTransport = new ApacheHttpTransport();
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		URI uri = null;
-		HttpRequest request = null;
-		// Get the current Purge API Endpoint
-		String purgeInvalidateEndpoint = this.getApiPurgeInvalidateEndpoint();
-		if (isStaging) {
-			// In case isStaging is TRUE modify Purge API Endpoint to purge
-			// staging instead of production
-			purgeInvalidateEndpoint = purgeInvalidateEndpoint.replaceAll("production", "staging");
-		}
-		try {
-			uri = new URI("https", this.getPurgeHost(), purgeInvalidateEndpoint, null, null);
-			// Ensure to use Content-Type application/json
-			request = requestFactory.buildPostRequest(new GenericUrl(uri),
-					ByteArrayContent.fromString("application/json", purgeJSON));
-			request.setReadTimeout(0);
-
-			// Some logging
-			OpenAPI.LOGGER.debug("request.getUrl():" + request.getUrl());
-			OpenAPI.LOGGER.debug("request.getRequestMethod():" + request.getRequestMethod());
-
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getPurgeCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			if (response.getStatusCode() == 201)
-				purgeExecuted = true;
-			// Log the response
-			OpenAPI.LOGGER.debug("response.getStatusCode():" + response.getStatusCode());
-			OpenAPI.LOGGER.debug("response.parseAsString():" + response.parseAsString());
-
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return purgeExecuted;
+		
+		// Transform API Endpoint
+		String currentApiPapiEndpoint = this.getApiPurgeInvalidateEndpoint();
+		currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{network}", network);
+		
+		return verifyPurgeResponse(this.doEdgeGridAPIRequestPOST(currentApiPapiEndpoint, purgeJSON));
+		
 	}
-
-	public boolean doPurgeInvalidate(String jsonFIlePath, Boolean isStaging) {
-		boolean purgeExecuted = false;
+	
+	public boolean doPurgeInvalidate(String jsonFilePath, Boolean isStaging) throws ClientProtocolException, UnsupportedOperationException, IOException {
+		// Define Network which should be purged
+		String network = "production";
+		if(isStaging){
+			network = "staging";
+		}
 		// Retrieve JSON from File
 		String purgeJSON;
-		try {
-			purgeJSON = OpenAPI.jsonFileReader(jsonFIlePath);
-			OpenAPI.LOGGER.debug("purgeJSON:\n" + purgeJSON);
-			// Use com.google.api.client.http Helper for HTTP Request
-			HttpTransport httpTransport = new ApacheHttpTransport();
-			HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-			URI uri = null;
-			HttpRequest request = null;
-			// Get the current Purge API Endpoint
-			String purgeInvalidateEndpoint = this.getApiPurgeInvalidateEndpoint();
-			if (isStaging) {
-				// In case isStaging is TRUE modify Purge API Endpoint to purge
-				// staging instead of production
-				purgeInvalidateEndpoint = purgeInvalidateEndpoint.replaceAll("production", "staging");
-			}
-			uri = new URI("https", this.getPurgeHost(), purgeInvalidateEndpoint, null, null);
-			// Ensure to use Content-Type application/json
-			request = requestFactory.buildPostRequest(new GenericUrl(uri),
-					ByteArrayContent.fromString("application/json", purgeJSON));
-			request.setReadTimeout(0);
-
-			// Some logging
-			OpenAPI.LOGGER.debug("request.getUrl():" + request.getUrl());
-			OpenAPI.LOGGER.debug("request.getRequestMethod():" + request.getRequestMethod());
-
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getPurgeCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			if (response.getStatusCode() == 201)
-				purgeExecuted = true;
-			// Log the response
-			OpenAPI.LOGGER.debug("response.getStatusCode():" + response.getStatusCode());
-			OpenAPI.LOGGER.debug("response.parseAsString():" + response.parseAsString());
-
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return purgeExecuted;
+		purgeJSON = OpenAPI.jsonFileReader(jsonFilePath);
+		OpenAPI.LOGGER.debug("purgeJSON:\n" + purgeJSON);
+		
+		// Transform API Endpoint
+		String currentApiPapiEndpoint = this.getApiPurgeInvalidateEndpoint();
+		currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{network}", network);
+		
+		return verifyPurgeResponse(this.doEdgeGridAPIRequestPOST(currentApiPapiEndpoint, purgeJSON));
 	}
 
-	public boolean doPurgeInvalidateCPCode(String cpcode) {
+
+	public boolean doPurgeInvalidateCPCode(String cpcode) throws ClientProtocolException, UnsupportedOperationException, IOException {
+		//by default we always purge the production network
 		return doPurgeInvalidateCPCode(cpcode, false);
 	}
 
-	public boolean doPurgeInvalidateCPCode(String cpcode, Boolean isStaging) {
-		boolean purgeExecuted = false;
-		OpenAPI.LOGGER.debug("purge CPCode:\n" + cpcode);
-		cpcode = "{\"objects\":[" + cpcode + "]}";
-		// Use com.google.api.client.http Helper for HTTP Request
-		HttpTransport httpTransport = new ApacheHttpTransport();
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		URI uri = null;
-		HttpRequest request = null;
-		// Get the current Purge API Endpoint
-		String purgeCPCodeInvalidateEndpoint = this.getApiPurgeInvalidateCPCodeEndpoint();
-		if (isStaging) {
-			// In case isStaging is TRUE modify Purge API Endpoint to purge
-			// staging instead of production
-			purgeCPCodeInvalidateEndpoint = purgeCPCodeInvalidateEndpoint.replaceAll("production", "staging");
+	public boolean doPurgeInvalidateCPCode(String cpcode, Boolean isStaging) throws ClientProtocolException, UnsupportedOperationException, IOException {
+		// Define Network which should be purged
+		String network = "production";
+		if(isStaging){
+			network = "staging";
 		}
-		try {
-			uri = new URI("https", this.getPurgeHost(), purgeCPCodeInvalidateEndpoint, null, null);
-			// Ensure to use Content-Type application/json
-			request = requestFactory.buildPostRequest(new GenericUrl(uri),
-					ByteArrayContent.fromString("application/json", cpcode));
-			request.setReadTimeout(0);
-
-			// Some logging
-			OpenAPI.LOGGER.debug("request.getUrl():" + request.getUrl());
-			OpenAPI.LOGGER.debug("request.getRequestMethod():" + request.getRequestMethod());
-
-			// Create a new EdgeGrid Signer Object
-			GoogleHttpClientEdgeGridRequestSigner requestSigner = new GoogleHttpClientEdgeGridRequestSigner(
-					this.getPurgeCredential());
-			// Sign the request
-			requestSigner.sign(request);
-			// send the request to the OPEN API Interface via HTTP POST
-			HttpResponse response = request.execute();
-			if (response.getStatusCode() == 201)
-				purgeExecuted = true;
-			// Log the response
-			OpenAPI.LOGGER.debug("response.getStatusCode():" + response.getStatusCode());
-			OpenAPI.LOGGER.debug("response.parseAsString():" + response.parseAsString());
-
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RequestSigningException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		// Create JSON for CPCode
+		OpenAPI.LOGGER.debug("purge CPCode:\n" + cpcode);
+		String cpcodeJSON = "{\"objects\":[" + cpcode + "]}";
+		
+		// Transform API Endpoint
+		String currentApiPapiEndpoint = this.getApiPurgeInvalidateCPCodeEndpoint();
+		currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{network}", network);
+		
+		return verifyPurgeResponse(this.doEdgeGridAPIRequestPOST(currentApiPapiEndpoint, cpcodeJSON));
+	}
+	
+	protected boolean verifyPurgeResponse(String jsonResult) {
+		boolean purgeExecuted = false;
+		Gson gson = new Gson();
+		Response purgeResponse = gson.fromJson(jsonResult, Response.class);
+		if(purgeResponse.getHttpStatus() == 201){
+			purgeExecuted = true;
 		}
 		return purgeExecuted;
-
 	}
 
+	
 }

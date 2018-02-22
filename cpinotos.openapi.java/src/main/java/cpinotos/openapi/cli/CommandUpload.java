@@ -10,6 +10,6 @@ public class CommandUpload {
 	public String in;
 	@Parameter(names = { "--out", "-o" }, description = "Path to netstorage, including CPCode Folder (e.g. /599907/my/file.txt)", required = true)
 	public String out;
-	@Parameter(names = { "--release", "-r" }, description = "support maptile", required = false, hidden = true)
-	public String release;
+	@Parameter(names = { "--indexzip", "-z" }, description = "index zip file during upload with az2z to support serve from zip", required = false, hidden = false)
+	public boolean indexzip;
 }

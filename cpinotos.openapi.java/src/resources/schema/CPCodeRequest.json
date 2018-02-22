@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Purge Request Body",
+    "description": "Specifies a list of CP codes to invalidate or delete.",
+    "type": "object",
+    "required": [ "objects" ],
+    "properties": {
+        "objects": {
+            "type": "array",
+            "items": {
+                "description": "For CP code-based operations, an array of the CP codes you want to purge.",
+                "type": "integer"
+            }
+        }
+    }
+}

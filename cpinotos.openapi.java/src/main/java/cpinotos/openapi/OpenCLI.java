@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.Iterator;
 import java.util.TimeZone;
 
+import com.akamai.netstorage.NetStorageException;
 //import com.akamai.edgeauth.AkamaiTokenConfig;
 //import com.akamai.edgeauth.AkamaiTokenGenerator;
 import com.beust.jcommander.JCommander;
@@ -18,7 +19,7 @@ import cpinotos.openapi.cli.CommandDU;
 import cpinotos.openapi.cli.CommandDelete;
 import cpinotos.openapi.cli.CommandDir;
 import cpinotos.openapi.cli.CommandDownload;
-import cpinotos.openapi.cli.CommandEdgeurl;
+import cpinotos.openapi.cli.CommandEdgeAuth;
 import cpinotos.openapi.cli.CommandGetLogLinesByIP;
 import cpinotos.openapi.cli.CommandMkdir;
 import cpinotos.openapi.cli.CommandPapiCPCode;
@@ -44,6 +45,7 @@ import cpinotos.openapi.services.data.ProductsResult;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseItemV0;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseV0;
 import cpinotos.openapi.services.data.TranslatedError;
+import cpinotos.openapi.services.data.UrlDebug;
 
 public class OpenCLI {
 
@@ -63,7 +65,7 @@ public class OpenCLI {
 		CommandDir cmdDir = new CommandDir();
 		CommandDelete cmdDelete = new cpinotos.openapi.cli.CommandDelete();
 		CommandMkdir cmdMkdir = new CommandMkdir();
-		CommandEdgeurl cmdEdgeurl = new CommandEdgeurl();
+		CommandEdgeAuth cmdEdgeAuth = new CommandEdgeAuth();
 		CommandPurge cmdPurge = new CommandPurge();
 		CommandPurgeCPCode cmdPurgeCPCode = new CommandPurgeCPCode();
 		CommandUrlDebug cmdUrlDebug = new CommandUrlDebug();
@@ -81,7 +83,7 @@ public class OpenCLI {
 		jc.addCommand("download", cmdDownload);
 		jc.addCommand("rename", cmdReName);
 		jc.addCommand("delete", cmdDelete);
-		jc.addCommand("edgeurl", cmdEdgeurl);
+		jc.addCommand("edgeauth", cmdEdgeAuth);
 		jc.addCommand("invalidate", cmdPurge);
 		jc.addCommand("invalidate_cpcode", cmdPurgeCPCode);
 		jc.addCommand("url_debug",cmdUrlDebug);
@@ -129,15 +131,14 @@ public class OpenCLI {
 			OpenAPI.LOGGER.debug("done");
 			break; // optional
 		case "upload":
+			//TODO Need to find the cpcode folder by myself 
+			// AKA_PM_NETSTORAGE_ROOT
+			// 
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
 			OpenAPI.LOGGER.info("Start upload:");
 			OpenAPI.LOGGER.info("Local File (in):" + cmdUpload.in);
 			OpenAPI.LOGGER.info("Netstorage Location (out):" + cmdUpload.out);
-			if(cmdUpload.release!=null){
-				result = nsapi.doNetstorageUpload(cmdUpload.out, cmdUpload.in, cmdUpload.release);
-			}else{
-				result = nsapi.doNetstorageUpload(cmdUpload.out, cmdUpload.in);	
-			}
+			result = nsapi.doNetstorageUpload(cmdUpload.out, cmdUpload.in, cmdUpload.indexzip);
 			
 			OpenAPI.LOGGER.info("done");
 			break; // optional
@@ -173,19 +174,22 @@ public class OpenCLI {
 				break;
 			};
 			if(cmdDir.recursive){
-				OpenAPI.LOGGER.info("Start dir recursive:");
-				OpenAPI.LOGGER.info("list the folder recursive:" + cmdDir.out);
 				NetStorageDirResultStat netStorageDirResultStat = nsapi.doNetstorageDir(cmdDir.out, cmdDir.recursive);
 				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-				OpenAPI.LOGGER.info("ns.dir.recursive(" + cmdDir.out + "):\n"+gsonBuilder.toJson(netStorageDirResultStat));
-				OpenAPI.LOGGER.info("done");						
+				OpenAPI.LOGGER.info(gsonBuilder.toJson(netStorageDirResultStat));
+
 			}else{
-				OpenAPI.LOGGER.info("Start dir:");
-				OpenAPI.LOGGER.info("list the folder:" + cmdDir.out);
-				NetStorageDirResultStat netStorageDirResultStat = nsapi.doNetstorageDir(cmdDir.out);
+				NetStorageDirResultStat netStorageDirResultStat = null;
+				try{
+					netStorageDirResultStat = nsapi.doNetstorageDir(cmdDir.out);	
+				}
+				catch(NetStorageException e){
+					OpenAPI.LOGGER.debug(e.getStackTrace().toString(),e);
+					OpenAPI.LOGGER.info("Please check if the Netstorage Path is correct. Start by using just the CPCode folder.");
+					break;
+				}
 				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
-				OpenAPI.LOGGER.info("ns.dir(" + cmdDir.out + "):\n" + gsonBuilder.toJson(netStorageDirResultStat));
-				OpenAPI.LOGGER.info("done");				
+				OpenAPI.LOGGER.info(gsonBuilder.toJson(netStorageDirResultStat));				
 			}
 			break; // optional
 		case "du":
@@ -228,10 +232,12 @@ public class OpenCLI {
 					listCPCodeResult = papi.doListCPCodes(cmdCpCode.contractId,cmdCpCode.groupId);	
 				}
 				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+				StringBuilder jsonResultStringBuilder = new StringBuilder();
 				Iterator<ListCPCode> i = listCPCodeResult.getCpcodes().getItems().iterator();
 				while(i.hasNext()){
-					OpenAPI.LOGGER.info(gsonBuilder.toJson(i.next()));
-				}				
+					jsonResultStringBuilder.append(gsonBuilder.toJson(i.next())+"\n");
+				}
+				OpenAPI.LOGGER.info(jsonResultStringBuilder.toString());
 			}else if (cmdCpCode.action.equals("search")){
 				//TBD
 			}else if (cmdCpCode.action.equals("create")){
@@ -252,62 +258,13 @@ public class OpenCLI {
 
 			};
 			break; // optional	
-		case "edgeurl":
-			papi = new PropertyManagerAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
+		case "edgeauth":
+			// init a new instance of Papi
 			OpenAPI.LOGGER.info("Start edgeurl:");
-			OpenAPI.LOGGER.info("edgeURL:step1/7: found Property Configuration for Hostname " + papi.getHostname());
-			SearchPropertyVersionsBySingleValueResponseV0 psr = papi.searchPAPIConfiguration();
-			//TODO Handle exception no config for provided hostname
-			SearchPropertyVersionsBySingleValueResponseItemV0 psri = psr.getVersions().getItems().get(0);
-			OpenAPI.LOGGER.info("edgeURL:step2/7: found Property Configuration "+ psri.getPropertyName() +"  version "+ psri.getPropertyVersion());
-			String prt = papi.getPAPIRuletreeAsJSON(psri.getPropertyId(), psri.getPropertyVersion(), psri.getContractId(),
-					psri.getGroupId(), false);
-			OpenAPI.LOGGER.info("edgeURL:step3/7: downloaded Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
-			OpenAPI.LOGGER.debug(prt.toString());
-			if (prt.equals(null)) {
-				papi.LOGGER.info("Could not retrieve Property Configuration");
-			} else {
-				OpenAPI.LOGGER.info("edgeURL:step4/7: extract edgeauth secret key from Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
-				/*
-				ArrayList<Child> childList = (ArrayList<Child>) prt.getRules().getChildren();
-				Iterator<Child> iteratoChild = childList.iterator();
-				while(iteratoChild.hasNext()){
-					Child child = null;
-					child = iteratoChild.next();
-					if(child.getName().equals("Access Control")){
-						ArrayList<Object> behaviorList;
-						behaviorList = (ArrayList<Object>) child.getChildren().get(0).getBehaviors();
-						LinkedTreeMap<String, Object> behaviorMapEntry = (LinkedTreeMap<String, Object>) behaviorList.get(1);
-						behaviorMapEntry.get("verifyTokenAuthorization");
-						Iterator<Object> iteratorChildBehaviors = behaviorList.iterator();
-						while(iteratorChildBehaviors.hasNext()){
-							//behavior = 
-							LinkedTreeMap<String, Object> behaviorMap = (LinkedTreeMap<String, Object>) iteratorChildBehaviors.next();
-							behaviorMap.get("key");
-							//if(behavior.startsWith("key"));
-							//edgeAuthKey = behavior.substring(3);
-							break;
-						}
-					};
-				};
-				*/
-				String edgeAuthKey = papi.getEdgeAuthKeyFromPapiRuleSet(prt);
-				
-				OpenAPI.LOGGER.info("edgeURL:step5/7: extract edgeauth query name from Property Configuration "+ psri.getPropertyName() +" version "+ psri.getPropertyVersion());
-				//String edgeAuthLocationId = openAPI.getEdgeAuthLocationFromPapiRuleSet(prt);
-				
-				//Integer startTime = (int) Instant.now().getEpochSecond();
-				Integer startTime = ((cmdEdgeurl.starttime == null) ?  (int) Instant.now().getEpochSecond() : cmdEdgeurl.starttime);				
-				OpenAPI.LOGGER.info("edgeURL:step6/7: generate edgeauth token with startime: "+startTime);
-
-				String edgeAuthToken;
-				//AkamaiTokenConfig conf = openAPI.GenerateConfig(cmdEdgeurl.in, edgeAuthKey, 3600);
-				//String edgeAuthToken = AkamaiTokenGenerator.generateToken(conf);
-				edgeAuthToken = papi.getEdgeAuthToken(cmdEdgeurl.in, edgeAuthKey, cmdEdgeurl.duration, "token", startTime);
-				OpenAPI.LOGGER.info("edgeURL:step7/7: EdgeURL: \n" + edgeAuthToken);
-				//openAPI.LOGGER.info("edgeURL:step7/7: EdgeURL: \nhttps://" + openAPI.getHost() + cmdEdgeurl.in + "?" + edgeAuthLocationId + "="+ edgeAuthToken);
-			}
-			OpenAPI.LOGGER.info("done");
+			papi = new PropertyManagerAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
+			Integer startTime = ((cmdEdgeAuth.starttime == null) ?  (int) Instant.now().getEpochSecond() : cmdEdgeAuth.starttime);
+			String edgeAuthToken = papi.getEdgeAuthToken(commands.hostname, cmdEdgeAuth.in, startTime, cmdEdgeAuth.duration);
+			OpenAPI.LOGGER.info("edgeURL:step7/7: EdgeURL: \n" + edgeAuthToken);
 			break; // optional
 		case "invalidate":
 			puapi = new PurgeAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
@@ -329,10 +286,9 @@ public class OpenCLI {
 			break; // optional			
 		case "url_debug":
 			dapi = new DiagnosticToolsAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
-			OpenAPI.LOGGER.info("Start URL Debug for URL:" + cmdUrlDebug.url);
-			String responseUrlDebug = dapi.doUrlDebug(cmdUrlDebug.url,cmdUrlDebug.edgeip, cmdUrlDebug.header);
-			OpenAPI.LOGGER.info("Result: " + responseUrlDebug);
-			OpenAPI.LOGGER.info("done");
+			UrlDebug responseUrlDebug = dapi.doUrlDebugAsynchronously(cmdUrlDebug.url,cmdUrlDebug.edgeip, cmdUrlDebug.header);
+			gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+			OpenAPI.LOGGER.info(gsonBuilder.toJson(responseUrlDebug));
 			break; // optional
 		case "translate_error":
 			dapi = new DiagnosticToolsAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);

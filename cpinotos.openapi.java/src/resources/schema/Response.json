@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Purge Request Body",
+    "type": "object",
+    "description": "V3 Purge response schema",
+    "properties": {
+        "describedBy": {
+            "description": "The URL for the API's machine readable documentation, for example, `https://api.ccu.akamai.com/ccu/v2/errors/internal-error`. It describes the error code in more detail.",
+            "type": "string"
+        },
+        "detail": {
+            "description": "Detailed information about the HTTP status code returned with the response.",
+            "type": "string"
+        },
+        "estimatedSeconds": {
+            "description": "The estimated number of seconds before the purge is to complete.",
+            "type": "integer"
+        },
+        "httpStatus": {
+            "description": "The HTTP code that indicates the status of the request to invalidate or purge content. Successful requests yield a `201` code.",
+            "type": "integer"
+        },
+        "purgeId": {
+            "description": "Unique identifier for the purge request.",
+            "type": "string"
+        },
+        "supportId": {
+            "description": "Identifier to provide Akamai Technical Support if issues arise.",
+            "type": "string"
+        },
+        "title": {
+            "description": "Describes the response type, for example, `Rate Limit exceeded`.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "httpStatus",
+        "supportId",
+        "detail"
+    ]
+}

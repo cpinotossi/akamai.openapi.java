@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.util.Date;
 import java.util.Iterator;
 
 import javax.xml.bind.DatatypeConverter;
@@ -31,25 +32,23 @@ public class NetStorageAPI extends OpenAPI{
 @Getter @Setter private NetStorage netStorage;
 
 
-public NetStorageAPI(String hostname, String edgercFilePath, String apiUploadAccountNameSection, boolean debug){
+public NetStorageAPI(String hostname, String edgercFilePath, String apiClientNameSection, boolean debug){
 	super(hostname, edgercFilePath, debug);
-	this.setApiClientNameNetStorage(apiUploadAccountNameSection);	
+	this.setApiClientName(apiClientNameSection);
 	initApiCredentialsNetStorage();
+	
+	/*
+	this.setApiClientNameNetStorage(apiUploadAccountNameSection);	
+	this.initApiCredentials();
+	*/
 	this.setNetStorage(new NetStorage(this.getNetstorageCredential()));
 }
 
 
-public boolean doNetstorageMkdir(String path) {
+public boolean doNetstorageMkdir(String path) throws NetStorageException, IOException {
 	boolean isCreated = false;
-	try {
 		isCreated = this.getNetStorage().mkdir(path);
-	} catch (NetStorageException e) {
-		e.printStackTrace();
-		
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+
 	return isCreated;
 }
 
@@ -69,11 +68,11 @@ public boolean doNetstorageDelete(String path){
 	return isDeleted;
 }
 
-public NetStorageDirResultStat doNetstorageDir(String dir) {
+public NetStorageDirResultStat doNetstorageDir(String dir) throws Exception {
 	String netStorageDirResultJson = null;
 	NetStorageDirResult netStorageDirResult = null;
 	String responseString = null;
-	try {
+	//try {
 		InputStream responseStream = this.getNetStorage().dir(dir);
 		responseString = OpenAPI.inputStreamReader(responseStream);
 		netStorageDirResultJson = OpenAPI.xml2json(responseString);
@@ -82,14 +81,14 @@ public NetStorageDirResultStat doNetstorageDir(String dir) {
 		netStorageDirResultJson = netStorageDirResultJson.replaceFirst("\\},\"directory\":","\\}\\],\"directory\":");
 		Gson gson = new Gson();
 		netStorageDirResult = gson.fromJson(netStorageDirResultJson, NetStorageDirResult.class);
-	}catch (Exception e) {
-		OpenAPI.LOGGER.debug("NetStorageDirResultStat",e);
-	}
+	//}catch (Exception e) {
+	//	OpenAPI.LOGGER.debug("NetStorageDirResultStat",e);
+	//}
 	return netStorageDirResult.getStat();
 }
 
 
-public NetStorageDirResultStat doNetstorageDir(String path, boolean isRekursive) {
+public NetStorageDirResultStat doNetstorageDir(String path, boolean isRekursive) throws Exception {
 	NetStorageDirResultFile currentFile = null;
 	NetStorageDirResultStat currentStat = null;
 	NetStorageDirResultStat nextStat = null;
@@ -174,10 +173,14 @@ public boolean doNetstorageDownload(String pathNetstorage, String pathLocal) {
 
 
 public boolean doNetstorageUpload(String targetPath, String sourcePath) {
+	return doNetstorageUpload(targetPath, sourcePath, false);
+}
+
+public boolean doNetstorageUpload(String targetPath, String sourcePath, boolean indexZip) {
 	boolean uploadResult = false;
 		try {
 			InputStream stream = this.fileReader(sourcePath);
-			uploadResult = this.getNetStorage().upload(targetPath, stream);
+			uploadResult = this.getNetStorage().upload(targetPath, stream, null, new Date(), null, null, null, null, indexZip);
 		} catch (FileNotFoundException e){
 			// TODO Need to figure out if we need to retry
 			OpenAPI.LOGGER.info("Local File does not exist");

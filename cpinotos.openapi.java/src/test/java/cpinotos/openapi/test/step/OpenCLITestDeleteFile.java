@@ -10,7 +10,7 @@ public class OpenCLITestDeleteFile extends MyTestParameters {
 
 	@Before
 	public void before() {
-		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameNetStorageDefault(), isDebug()));
+		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameDefault(), isDebug()));
 	}
 	
 	@Test

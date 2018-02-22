@@ -11,7 +11,7 @@ public class OpenCLITestEdgercNetStorage extends MyTestParameters {
 
 	@Test
 	public void test1() throws Exception {
-		setNsapi(new NetStorageAPI(getHostname(), null, this.getApiClientNameNetStorageDefault(), this.isDebug()));
+		setNsapi(new NetStorageAPI(getHostname(), null, this.getApiClientNameDefault(), this.isDebug()));
 		LOGGER.info(String.format("NetStorageAPI 1 %s", getFolderNameUpdates()));
 		assertTrue(getNsapi().doNetstorageDir(getNetStorageRootPath(), false).getFile().get(0).getName().equals(getFolderNameUpdates()));
 	}
@@ -39,14 +39,14 @@ public class OpenCLITestEdgercNetStorage extends MyTestParameters {
 	
 	@Test
 	public void test5() throws Exception {
-		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameNetStorageDefault(), false));
+		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameDefault(), false));
 		LOGGER.info(String.format("NetStorageAPI 5 %s", getFolderNameUpdates()));
 		assertTrue(getNsapi().doNetstorageDir(getNetStorageRootPath(), false).getFile().get(0).getName().equals(getFolderNameUpdates()));
 	}
 	
 	@Test
 	public void test6() throws Exception {
-		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameNetStorageDefault(), this.isDebug()));
+		setNsapi(new NetStorageAPI(getHostname(), getEdgercFilePath1(), this.getApiClientNameDefault(), this.isDebug()));
 		LOGGER.info(String.format("NetStorageAPI 6 %s", getFolderNameUpdates()));
 		assertTrue(getNsapi().doNetstorageDir(getNetStorageRootPath(), false).getFile().get(0).getName().equals(getFolderNameUpdates()));
 	}
