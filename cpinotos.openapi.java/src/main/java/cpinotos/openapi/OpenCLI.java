@@ -49,6 +49,7 @@ import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueRespons
 import cpinotos.openapi.services.data.TranslatedError;
 import cpinotos.openapi.services.data.UrlDebug;
 
+//TODO ota api support
 public class OpenCLI {
 
 	@SuppressWarnings("static-access")
@@ -265,7 +266,7 @@ public class OpenCLI {
 			OpenAPI.LOGGER.info("Start edgeurl:");
 			papi = new PropertyManagerAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
 			Integer startTime = ((cmdEdgeAuth.starttime == null) ?  (int) Instant.now().getEpochSecond() : cmdEdgeAuth.starttime);
-			String edgeAuthToken = papi.getEdgeAuthToken(commands.hostname, cmdEdgeAuth.in, startTime, cmdEdgeAuth.duration);
+			String edgeAuthToken = papi.getEdgeAuthToken(commands.hostname, cmdEdgeAuth.in, startTime, cmdEdgeAuth.duration, cmdEdgeAuth.network);
 			OpenAPI.LOGGER.info("edgeURL:step7/7: EdgeURL: \n" + edgeAuthToken);
 			break; // optional
 		case "invalidate":

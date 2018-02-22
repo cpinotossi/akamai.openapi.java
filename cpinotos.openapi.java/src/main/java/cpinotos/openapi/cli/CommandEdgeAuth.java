@@ -16,4 +16,6 @@ public class CommandEdgeAuth {
 	//TODO review this implementation.
 	@Parameter(names = { "--starttime", "-s" }, description = "Start time of the token in epoch unix timestamp (default: now)", required = false)
 	public Integer starttime = null;
+	@Parameter(names = { "--network", "-n" }, description = "Define from which network to retrieve the the EdgeAuth Settings values. Possible values production or staging (default: production)", required = false)
+	public String network = "production";
 }

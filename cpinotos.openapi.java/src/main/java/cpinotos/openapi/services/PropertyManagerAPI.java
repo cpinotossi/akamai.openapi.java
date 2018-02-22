@@ -128,24 +128,49 @@ public class PropertyManagerAPI extends OpenAPI {
 		return gson.fromJson(jsonResult, ProductsResult.class);
 	}
 
-
 	public String getEdgeAuthToken(String hostname, String urlpath)
+			throws ClientProtocolException, UnsupportedOperationException, IOException {
+		String network = "production";
+		Integer startTime = (int) Instant.now().getEpochSecond();
+		Integer duration = 3600;
+		return getEdgeAuthToken(hostname, urlpath, startTime, duration, network);
+	}
+
+	public String getEdgeAuthToken(String hostname, String urlpath, String network)
 			throws ClientProtocolException, UnsupportedOperationException, IOException {
 		Integer startTime = (int) Instant.now().getEpochSecond();
 		Integer duration = 3600;
-		return getEdgeAuthToken(hostname, urlpath, startTime, duration);
+		return getEdgeAuthToken(hostname, urlpath, startTime, duration, network);
 	}
 
-	public String getEdgeAuthToken(String hostname, String urlpath, Integer startTime, Integer duration) throws ClientProtocolException, IOException {
+	public String getEdgeAuthToken(String hostname, String urlpath, Integer startTime, Integer duration, String network) throws ClientProtocolException, IOException {
 		String encryptionKey = null;
 		String edgeauthTokenName = null;
 		OpenAPI.LOGGER.info("edgeURL:step1/7: found Property Configuration for Hostname " + hostname);
 		SearchPropertyVersionsBySingleValueResponseV0 psr = this.searchPAPIConfiguration();
-		// TODO Handle exception no config for provided hostname
-		// We expect only one entry in the result.
-		SearchPropertyVersionsBySingleValueResponseItemV0 psri = psr.getVersions().getItems().get(0); 
+		// Find the configuration based on the requested network
+		if(!network.equals("network")&&!network.equals("staging")){
+			//Value of network does not match any of the expected values therefore we are going to use the default networt value "production".
+			network = "production";
+		}
+		int searchResultLength = psr.getVersions().getItems().size();
+		SearchPropertyVersionsBySingleValueResponseItemV0 psri = null;
+		SearchPropertyVersionsBySingleValueResponseItemV0 psriCurrent;
+		for(int i=0; i<searchResultLength; i++){
+			psriCurrent = psr.getVersions().getItems().get(i);
+			if(network.equals("production")){
+				if(psriCurrent.getProductionStatus().equals("ACTIVE")){
+					psri = psriCurrent;
+				}
+			}else if(network.equals("staging")){
+				if(psriCurrent.getStagingStatus().equals("ACTIVE")){
+					psri = psriCurrent;
+				}
+			}
+		} 
 		OpenAPI.LOGGER.info("edgeURL:step2/7: found Property Configuration " + psri.getPropertyName() + "  version "
 				+ psri.getPropertyVersion());
+		//Retrieve json ruletree of the configuration
 		String prt = this.getPAPIRuletreeAsJSON(psri.getPropertyId(), psri.getPropertyVersion(), psri.getContractId(),
 				psri.getGroupId(), false);
 		OpenAPI.LOGGER.info("edgeURL:step3/7: downloaded Property Configuration " + psri.getPropertyName() + " version "
