@@ -99,7 +99,11 @@ public TranslatedError doTranslateError(String errorString) throws JsonSyntaxExc
 	return gson.fromJson(this.doEdgeGridAPIRequest(currentApiPapiEndpoint), TranslatedError.class);
 }
 
-
+public String doTranslateErrorJson(String errorString) throws JsonSyntaxException, ClientProtocolException, UnsupportedOperationException, IOException{
+	String currentApiPapiEndpoint = this.getApiDiagnosticToolsTranslatedErrorEndpoint();
+	currentApiPapiEndpoint = currentApiPapiEndpoint.replace("{errorCode}", errorString);
+	return this.doEdgeGridAPIRequest(currentApiPapiEndpoint);
+}
 
 public LogLines doGetLogLinesFromIP(String ipAddress, String endTime, String arl, String clientIp, String cpCode, String duration, String hostHeader, String httpStatusCode, String logType, String maxLogLines, String objStatus, String requestId, String userAgent) throws JsonSyntaxException, ClientProtocolException, UnsupportedOperationException, IOException{
 	String currentApiPapiEndpoint = OpenAPI.addValueToAPIEndPointURL(this.getApiDiagnosticToolsGetLogLinesFromIPEndpoint(), "ipAddress", ipAddress);

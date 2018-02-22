@@ -13,6 +13,8 @@ import com.akamai.netstorage.NetStorageException;
 import com.beust.jcommander.JCommander;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 //import ch.qos.logback.classic.Level;
 import cpinotos.openapi.cli.CommandDU;
@@ -292,10 +294,13 @@ public class OpenCLI {
 			break; // optional
 		case "translate_error":
 			dapi = new DiagnosticToolsAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
-			OpenAPI.LOGGER.info("Start Translate ErrorCode:" + cmdTranslateError.errorCode);
-			TranslatedError responseTranslateError = dapi.doTranslateError(cmdTranslateError.errorCode);
-			OpenAPI.LOGGER.info("ReasonForFailure: " + responseTranslateError.getTranslatedError().getReasonForFailure());
-			OpenAPI.LOGGER.info("done");
+			OpenAPI.LOGGER.debug("Start Translate ErrorCode:" + cmdTranslateError.errorCode);
+			String responseTranslateError = dapi.doTranslateErrorJson(cmdTranslateError.errorCode);
+			JsonParser parser = new JsonParser();
+		    JsonObject json = parser.parse(responseTranslateError).getAsJsonObject();
+			gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+			OpenAPI.LOGGER.info(gsonBuilder.toJson(json));
+			//OpenAPI.LOGGER.info("ReasonForFailure: " + responseTranslateError.getTranslatedError().getReasonForFailure());
 			break; // optional		
 		case "logs_by_ip":
 			dapi = new DiagnosticToolsAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
