@@ -63,6 +63,9 @@ public class OpenAPI {
 
 	@Getter
 	@Setter
+	private String NetstorageCpcode;
+	@Getter
+	@Setter
 	private String hostname;
 	@Getter
 	@Setter
@@ -222,7 +225,8 @@ public class OpenAPI {
 			OpenAPI.LOGGER.debug("Netstorage Host: " + this.getNetstorageHost());
 			this.setNetstorageKey(getEdgerc().get(apiClientName, "ns_key"));
 			OpenAPI.LOGGER.debug("Netstorage Key: " + this.getNetstorageKey());
-
+			this.setNetstorageCpcode(getEdgerc().get(apiClientName, "ns_cpcode"));
+			OpenAPI.LOGGER.debug("CPCode Key: " + this.getNetstorageCpcode());
 			this.setNetstorageCredential(new DefaultCredential(this.getNetstorageHost(), this.getNetstorageClient(),
 					this.getNetstorageKey()));
 		}

@@ -111,16 +111,6 @@ public class OpenCLI {
 	        System.exit(0);
 	    }
         String currentCmd = jc.getParsedCommand();
-		// Instantiate an instance of
-		//OpenAPI openAPI = null;
-	 
-		/*
-		if (commands.verbose) {
-			openAPI.LOGGER.setLevel(Level.DEBUG);
-		} else {
-			openAPI.LOGGER.setLevel(Level.INFO);
-		}
-		*/
 
 		boolean result = false;
 		PropertyManagerAPI papi = null;
@@ -134,65 +124,64 @@ public class OpenCLI {
 		
 		switch (currentCmd) {
 		case "mkdir":
-			//we will only need the Netstorage credentials:
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
-			OpenAPI.LOGGER.info("Start mkdir:");
-			OpenAPI.LOGGER.info("Netstorage Location (out):" + cmdMkdir.out);
-			OpenAPI.LOGGER.info("Netstorage created:" + nsapi.doNetstorageMkdir(cmdMkdir.out));
+			String mkdirPath = "/"+nsapi.getNetstorageCpcode()+cmdMkdir.out;
+			OpenAPI.LOGGER.info("Netstorage Location (out):" + mkdirPath);
+			OpenAPI.LOGGER.info("Netstorage created:" + nsapi.doNetstorageMkdir(mkdirPath));
 			OpenAPI.LOGGER.debug("done");
 			break; // optional
 		case "upload":
-			//TODO Need to find the cpcode folder by myself 
-			// AKA_PM_NETSTORAGE_ROOT
-			// 
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
-			OpenAPI.LOGGER.info("Start upload:");
+			String uploadPath = "/"+nsapi.getNetstorageCpcode()+cmdUpload.out;
 			OpenAPI.LOGGER.info("Local File (in):" + cmdUpload.in);
-			OpenAPI.LOGGER.info("Netstorage Location (out):" + cmdUpload.out);
-			result = nsapi.doNetstorageUpload(cmdUpload.out, cmdUpload.in, cmdUpload.indexzip);
-			
+			OpenAPI.LOGGER.info("Netstorage Location (out):" + uploadPath);
+			result = nsapi.doNetstorageUpload(uploadPath, cmdUpload.in, cmdUpload.indexzip);
 			OpenAPI.LOGGER.info("done");
 			break; // optional
 		case "download":
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
-			OpenAPI.LOGGER.info("Start download:");
-			OpenAPI.LOGGER.info("settings.downloadpath:" + cmdDownload.out);
-			result = nsapi.doNetstorageDownload(cmdDownload.out, cmdDownload.in);
+			String downloadPath = "/"+nsapi.getNetstorageCpcode()+cmdDownload.out;
+			OpenAPI.LOGGER.info("settings.downloadpath:" + downloadPath);
+			result = nsapi.doNetstorageDownload(downloadPath, cmdDownload.in);
 			OpenAPI.LOGGER.info("download Response:" + result);
 			OpenAPI.LOGGER.info("done");
 			break; // optional
 		case "rename":
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
-			OpenAPI.LOGGER.info("Start rename:");
-			OpenAPI.LOGGER.info("old path:" + cmdReName.in);
-			OpenAPI.LOGGER.info("new path:" + cmdReName.out);
-			result = nsapi.doNetstorageReName(cmdReName.in, cmdReName.out);
+			String oldName = "/"+nsapi.getNetstorageCpcode()+cmdReName.in;
+			String newName = "/"+nsapi.getNetstorageCpcode()+cmdReName.out;
+			OpenAPI.LOGGER.info("old path:" + oldName);
+			OpenAPI.LOGGER.info("new path:" + newName);
+			result = nsapi.doNetstorageReName(oldName, newName);
 			OpenAPI.LOGGER.info("rename:" + result);
 			OpenAPI.LOGGER.info("done");
 			break; // optional
 		case "symlink":
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
 			OpenAPI.LOGGER.info("Start download:");
-			OpenAPI.LOGGER.info("Netstorage SymLink Location (out):" + cmdSymLink.out);
-			result = nsapi.doNetstorageSymLink(cmdSymLink.out, cmdSymLink.in);
+			String symlinkOut =  "/"+nsapi.getNetstorageCpcode()+cmdSymLink.out;
+			String symlinkIn =  "/"+nsapi.getNetstorageCpcode()+cmdSymLink.in;
+			OpenAPI.LOGGER.info("Netstorage SymLink Location (out):" + symlinkOut);
+			result = nsapi.doNetstorageSymLink(symlinkOut, symlinkIn);
 			OpenAPI.LOGGER.info("SymLink Response:" + result);
 			OpenAPI.LOGGER.info("done");
 			break; // optional
 		case "dir":
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
+			String dirOut =  "/"+nsapi.getNetstorageCpcode()+cmdDir.out;
 			if(cmdDir.out.endsWith("/")){
-				OpenAPI.LOGGER.info("ERROR: path should not end with an '/': " + cmdDir.out);
+				OpenAPI.LOGGER.info("ERROR: path should not end with an '/': " + dirOut);
 				break;
 			};
 			if(cmdDir.recursive){
-				NetStorageDirResultStat netStorageDirResultStat = nsapi.doNetstorageDir(cmdDir.out, cmdDir.recursive);
+				NetStorageDirResultStat netStorageDirResultStat = nsapi.doNetstorageDir(dirOut, cmdDir.recursive);
 				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
 				OpenAPI.LOGGER.info(gsonBuilder.toJson(netStorageDirResultStat));
 
 			}else{
 				NetStorageDirResultStat netStorageDirResultStat = null;
 				try{
-					netStorageDirResultStat = nsapi.doNetstorageDir(cmdDir.out);	
+					netStorageDirResultStat = nsapi.doNetstorageDir(dirOut);	
 				}
 				catch(NetStorageException e){
 					OpenAPI.LOGGER.debug(e.getStackTrace().toString(),e);
@@ -205,20 +194,20 @@ public class OpenCLI {
 			break; // optional
 		case "du":
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
-			// disk utilisation
-			OpenAPI.LOGGER.info("settings.path:" + cmdDu.out);
-			//TODO need to fix this
-			String responseDu = nsapi.doNetstorageDu(cmdDu.out).toString();
-			OpenAPI.LOGGER.info("ns.du(" + cmdDu.out + "):\n" + responseDu);
+			String duOut =  "/"+nsapi.getNetstorageCpcode()+cmdDu.out;
+			OpenAPI.LOGGER.info("settings.path:" + duOut);
+			String responseDu = nsapi.doNetstorageDu(duOut).toString();
+			OpenAPI.LOGGER.info("ns.du(" + duOut + "):\n" + responseDu);
 			OpenAPI.LOGGER.info("done");
 			break; // optional
 		case "delete":
 			nsapi = new NetStorageAPI(commands.hostname, commands.edgerc, commands.nssection, commands.verbose);
+			String deleteOut =  "/"+nsapi.getNetstorageCpcode()+cmdDelete.out;
 			// delete
-			OpenAPI.LOGGER.info("settings.path:" + cmdDelete.out);
+			OpenAPI.LOGGER.info("settings.path:" + deleteOut);
 				//TODO fix the recursive hard coding
-				boolean responseDelete = nsapi.doNetstorageDelete(cmdDelete.out);
-				OpenAPI.LOGGER.info("ns.delete(" + cmdDelete.out + "): " + responseDelete);
+				boolean responseDelete = nsapi.doNetstorageDelete(deleteOut);
+				OpenAPI.LOGGER.info("ns.delete(" + deleteOut + "): " + responseDelete);
 				OpenAPI.LOGGER.info("done");	
 			break; // optional	
 		case "products":
