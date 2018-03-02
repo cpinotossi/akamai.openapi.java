@@ -123,6 +123,9 @@ public class OpenAPI {
 	private String apiPapiListProductsEndpoint;
 	@Getter
 	@Setter
+	private String apiOverTheAirDownloadNotificationsEndpoint;
+	@Getter
+	@Setter
 	private Wini edgerc;
 	@Getter
 	@Setter
@@ -174,6 +177,8 @@ public class OpenAPI {
 				this.getAppConfigProperties().get("api-endpoints", "apiPapiCreateCPCodesEndpoint"));
 		this.setApiPapiListProductsEndpoint(
 				this.getAppConfigProperties().get("api-endpoints", "apiPapiListProductsEndpoint"));
+		this.setApiOverTheAirDownloadNotificationsEndpoint(
+				this.getAppConfigProperties().get("api-endpoints", "apiOverTheAirDownloadNotificationsEndpoint"));
 	}
 
 	public OpenAPI(String hostname) {

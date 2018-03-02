@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema",
+    "id": "http://jsonschema.net",
+    "description": "Encapsulates a collection of download notifications, with additional pagination context.",
+    "type": "object",
+    "required": [
+        "notifications"
+    ],
+    "properties": {
+        "nextPageStart": {
+            "type": "double",
+            "description": "The timestamp in milliseconds that indicates the `start` of the next page of notifications."
+        },
+        "notifications": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "description": "Encapsulates each download notification.",
+                "required": [
+                    "cpcode",
+                    "downloadTime",
+                    "host",
+                    "path",
+                    "uid"
+                ],
+                "properties": {
+                    "cpcode": {
+                        "type": "integer",
+                        "description": "The content provider code under which traffic is billed."
+                    },
+                    "downloadTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The date and time of a download event on a Ghost server."
+                    },
+                    "uid": {
+                        "type": "string",
+                        "description": "The unique identifier of a vehicle."
+                    },
+                    "host": {
+                        "type": "string",
+                         "description": "The host of a downloaded file."
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "The path of a downloaded file."
+                    }
+                }
+            }
+        }
+    }
+}

@@ -24,6 +24,7 @@ import cpinotos.openapi.cli.CommandDownload;
 import cpinotos.openapi.cli.CommandEdgeAuth;
 import cpinotos.openapi.cli.CommandGetLogLinesByIP;
 import cpinotos.openapi.cli.CommandMkdir;
+import cpinotos.openapi.cli.CommandOverTheAirDownloadNotifications;
 import cpinotos.openapi.cli.CommandPapiCPCode;
 import cpinotos.openapi.cli.CommandProducts;
 import cpinotos.openapi.cli.CommandPurge;
@@ -36,6 +37,7 @@ import cpinotos.openapi.cli.CommandUrlDebug;
 import cpinotos.openapi.cli.Commands;
 import cpinotos.openapi.services.DiagnosticToolsAPI;
 import cpinotos.openapi.services.NetStorageAPI;
+import cpinotos.openapi.services.OverTheAirAPI;
 import cpinotos.openapi.services.PropertyManagerAPI;
 import cpinotos.openapi.services.PurgeAPI;
 import cpinotos.openapi.services.data.CreateNewCPCodeResultV0;
@@ -43,6 +45,7 @@ import cpinotos.openapi.services.data.ListCPCode;
 import cpinotos.openapi.services.data.ListCPCodeResult;
 import cpinotos.openapi.services.data.LogLines;
 import cpinotos.openapi.services.data.NetStorageDirResultStat;
+import cpinotos.openapi.services.data.Notifications;
 import cpinotos.openapi.services.data.ProductsResult;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseItemV0;
 import cpinotos.openapi.services.data.SearchPropertyVersionsBySingleValueResponseV0;
@@ -76,6 +79,7 @@ public class OpenCLI {
 		CommandGetLogLinesByIP cmdGetLogLinesByIP = new CommandGetLogLinesByIP();
 		CommandPapiCPCode cmdCpCode = new CommandPapiCPCode();
 		CommandProducts cmdProducts = new CommandProducts();
+		CommandOverTheAirDownloadNotifications cmdOverTheAirDownloadNotifications = new CommandOverTheAirDownloadNotifications();
 		JCommander jc = new JCommander();
 		jc.addObject(commands);
 		jc.addCommand("du", cmdDu);
@@ -94,6 +98,7 @@ public class OpenCLI {
 		jc.addCommand("logs_by_ip", cmdGetLogLinesByIP);
 		jc.addCommand("cpcode", cmdCpCode);
 		jc.addCommand("products", cmdProducts);
+		jc.addCommand("ota", cmdOverTheAirDownloadNotifications);
 	    try {
 	        jc.parse(args);
 	    } catch (Exception e) {
@@ -122,6 +127,9 @@ public class OpenCLI {
 		NetStorageAPI nsapi = null;
 		PurgeAPI puapi = null;
 		DiagnosticToolsAPI dapi = null;
+		OverTheAirAPI oapi = null;
+		JsonParser parser;
+		JsonObject json;
 		Gson gsonBuilder;
 		
 		switch (currentCmd) {
@@ -297,8 +305,8 @@ public class OpenCLI {
 			dapi = new DiagnosticToolsAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
 			OpenAPI.LOGGER.debug("Start Translate ErrorCode:" + cmdTranslateError.errorCode);
 			String responseTranslateError = dapi.doTranslateErrorJson(cmdTranslateError.errorCode);
-			JsonParser parser = new JsonParser();
-		    JsonObject json = parser.parse(responseTranslateError).getAsJsonObject();
+			parser = new JsonParser();
+		    json = parser.parse(responseTranslateError).getAsJsonObject();
 			gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
 			OpenAPI.LOGGER.info(gsonBuilder.toJson(json));
 			//OpenAPI.LOGGER.info("ReasonForFailure: " + responseTranslateError.getTranslatedError().getReasonForFailure());
@@ -323,7 +331,18 @@ public class OpenCLI {
 			LogLines logLines = dapi.doGetLogLinesFromIP(cmdGetLogLinesByIP.ipAddress, endTime, "", "", "", "", "", "", "", "", "", "", "");
 			OpenAPI.LOGGER.info("Log Lines: " + logLines.getLogLines());
 			OpenAPI.LOGGER.info("done");
-			break; // optional				
+			break; // optional
+		case "ota":
+			oapi = new OverTheAirAPI(commands.hostname, commands.edgerc, commands.section, commands.verbose);
+			OpenAPI.LOGGER.debug("Start retrieve OTA Download Notifications for:" + cmdOverTheAirDownloadNotifications.cpcode);
+			Notifications responseOTADownloadNotifications = oapi.doListDownloadNotificationsByCPCode(cmdOverTheAirDownloadNotifications.cpcode);
+			if(cmdOverTheAirDownloadNotifications.format.equals("list")){
+				OpenAPI.LOGGER.info(oapi.getListDownloadNotificationsAsTable(responseOTADownloadNotifications));	
+			}else{
+				gsonBuilder = new GsonBuilder().setPrettyPrinting().create();
+				OpenAPI.LOGGER.info(gsonBuilder.toJson(responseOTADownloadNotifications));
+			}
+			break; // optional	
 		default: // default
 			OpenAPI.LOGGER.info("please use a command:");
 		}

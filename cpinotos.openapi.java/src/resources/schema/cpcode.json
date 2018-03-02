@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema",
+    "id": "http://jsonschema.net",
+    "description": "Specifies a content provider code.",
+    "type": "object",
+    "required": ["id", "name"],
+    "properties": {
+        "id": {
+            "description": "The identifier of the content provider code.",
+            "type": "integer"
+        },
+        "name": {
+            "description": "The name of the content provider code.",
+            "type": "string"
+        }
+    }
+}
