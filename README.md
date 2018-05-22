@@ -8,19 +8,100 @@
 - Java 8
 - cURL
 - MP3 Player (MacOs comes with afplay on command shell)
-- Browser
-- 
+
 ### Get the java opencli client.
-Download the jar file from here:
-https://drive.google.com/file/d/1mXVVe3T48r3G82gdMvoYQoOEIpO_mneq/view?usp=sharing
+The latest opencli jar can be found under the following github project https://github.com/cpinotossi/akamai.openapi.java
+You just need to download the opencli.jar from here:
+
+ NOTE: If you like to build the jar by yourself you can clone the project and run the Maven Build script which can be found under https://github.com/cpinotossi/akamai.openapi.java/blob/master/cpinotos.openapi.java/pom.xml
 
 ### Get the Open API client credentials
-Download the .edgerc file from here:
+You will need to have a corresponding .edgerc file with all needed credentials.
+In case you are Akamai customer you should be able to get such a file via the Akamai Portal (https://control.akamai.com).
+
+In case you are an Akamai employ you can download the file from here:
 https://drive.google.com/file/d/1Vp7oWDS1PmurDqDn_Nrgc5NDZdUSYwnm/view?usp=sharing
 
 ### Get the sample file
-The sample file will be used during the whole demo.
+During the whole Demo we will use an mp3 files which will be uploaded and downloaded from Akamai.
+ NOTE: We use an mp3 file, this has the nice side effect that we can listen to nice music if everything goes fine ;).
+
+In case you are an Akamai employ you can find a nice demo mp3 file here:
 https://drive.google.com/file/d/1asObCLw4_1z3Hsapx8dXaTMRGKM6NEYl/view?usp=sharing
+
+### Run from inside a docker instance
+If you cannot run Java8 from your machine you can use Docker instead.
+Under the github project https://github.com/cpinotossi/akamai.openapi.java you can find a Dockerfile.
+If you download the dockerfile and the opencli.jar file you can build an docker image as follow:
+
+1. Build the docker image with the Dockerfile
+```
+$ docker build -t cpinotos/openapi-akamai:latest .
+```
+
+2. Run the docker image as follow
+```
+$ docker run -it --mount type=bind,source="$(pwd)",target=/opencli cpinotos/openapi-akamai
+```
+ NOTE: The opencli.jar which will be run from inside the docker container will need to have access to the .edgerc file. To achieve this we use the mount command to map our current folder into the docker workdirectory.
+
+3. List your workdirectory:
+```
+~/w/akamai.openapi.java ❯❯❯ docker run -it --mount type=bind,source="$(pwd)",target=/opencli cpinotos/openapi-akamai
+[root@0ab2877a9193 opencli]# ls -la
+total 13040
+drwxr-xr-x 12 root root      408 May 22 17:13 .
+drwxr-xr-x  1 root root     4096 May 22 17:41 ..
+-rw-r--r--  1 root root      118 May 22 14:47 config
+drwxr-xr-x 13 root root      442 May 22 15:25 cpinotos.openapi.java
+-rw-r--r--  1 root root      852 May 22 16:54 Dockerfile
+-rw-r--r--  1 root root     6089 May 22 17:13 .edgerc
+drwxr-xr-x 15 root root      510 May 22 17:25 .git
+-rw-r--r--  1 root root       12 May 22 14:47 .gitignore
+-rw-r--r--  1 root root       23 May 22 14:47 HEAD
+-rw-r--r--  1 root root 13306889 May 22 15:22 opencli.jar
+drwxr-xr-x  2 root root       68 May 22 14:47 property-manager-catalog
+-rw-r--r--  1 root root    14314 May 22 17:33 README.md
+```
+ NOTE: The file .edgerc is now avaiable from inside the Docker container because of the mapping.
+
+4. Call the opencli help command:
+```
+[root@31cf2fcc3587 opencli]# java -jar opencli.jar -h
+```
+
+5. List a directory on the Akamai Netstorage via the opencli.jar:
+```
+[root@31cf2fcc3587 opencli]# java -jar opencli.jar -h ota.edgegate.de --edgerc /opencli/.edgerc dir -o /updates/cpinotos
+{
+  "file": [
+    {
+      "name": "akamai.iot.docs.zip",
+      "type": "file",
+      "mtime": "1519722866",
+      "size": "23442906",
+      "md5": "e4f60d9629b731b8619beaa8d43508ea"
+    },
+    {
+      "name": "model_1",
+      "type": "dir",
+      "mtime": "1523538960"
+    },
+    {
+      "name": "model_2",
+      "type": "dir",
+      "mtime": "1519734200"
+    },
+    {
+      "name": "model_3",
+      "type": "dir",
+      "mtime": "1519738930"
+    }
+  ],
+  "directory": "/599907/updates/cpinotos"
+}
+[root@31cf2fcc3587 opencli]#
+```
 
 ### Call the java opencli client the first time
 After downloading the opencli.jar open a shell and go to the directory under which you downloaded the opencli.jar and execute the following command:
@@ -273,7 +354,7 @@ afplay mozart_20180302.mp3
 ## Send valid OTA Reporting Request
 So far none of the request we did will show up in our OTA aggregated reports. That´s because the used OTA setup used here does expect the http request header "user-agent" with the value "device".
 
-NOTE: That has been done to avoid to track all kind of incoming request. The user-agent does act as a filter for us. 
+NOTE: That has been done to avoid to track all kind of incoming request. The user-agent does act as a filter for us.
 
 OTA reporting request in case of ota.edgegate.de needs to include:
 - query parameter uid (unique id of a certain device)
