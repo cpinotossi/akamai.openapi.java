@@ -331,18 +331,7 @@ public class OpenAPI {
 		return json;
 	}
 
-	/*
-	 * private static Properties propertyFromFileReader(String propFileName) {
-	 * Properties prop = new Properties(); File file = new File(propFileName);
-	 * InputStream input = null;
-	 * 
-	 * try {
-	 * 
-	 * input = new FileInputStream(file); // load a properties file
-	 * prop.load(input); } catch (IOException ex) { ex.printStackTrace(); }
-	 * finally { if (input != null) { try { input.close(); } catch (IOException
-	 * e) { e.printStackTrace(); } } } return prop; }
-	 */
+
 	public String doEdgeGridAPIRequest(String apiRequestUrl)
 			throws ClientProtocolException, UnsupportedOperationException, IOException {
 		String jsonResult = null;
