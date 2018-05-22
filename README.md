@@ -1,4 +1,4 @@
-# OTA demo
+# Akamai API Demo
 ## What will we show
 1. Easy use of the API to upload content to the OTA service.
 2. Easy way to use the OTA reporting.
