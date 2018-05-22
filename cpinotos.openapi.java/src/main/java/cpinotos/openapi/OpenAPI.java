@@ -61,9 +61,7 @@ public class OpenAPI {
 	private String netstorageClient, netstorageKey, netstorageHost, purgeClientSecret, purgeHost, purgeAccessToken,
 			purgeClientToken, apiClientSecret, apiHost, apiAccessToken, apiClientToken;
 
-	@Getter
-	@Setter
-	private String NetstorageCpcode;
+	@Getter @Setter private String NetstorageCpcode;
 	@Getter
 	@Setter
 	private String hostname;
@@ -124,26 +122,14 @@ public class OpenAPI {
 	@Getter
 	@Setter
 	private String apiPapiListProductsEndpoint;
-	@Getter
-	@Setter
-	private String apiOverTheAirDownloadNotificationsEndpoint;
-	@Getter
-	@Setter
-	private Wini edgerc;
-	@Getter
-	@Setter
-	private Wini appConfigProperties;
+	@Getter @Setter private String apiOverTheAirDownloadNotificationsEndpoint;
+	@Getter @Setter private Wini edgerc;
+	@Getter @Setter private Wini appConfigProperties;
 
 	// Credential objects needed for the different Akamai OPEN API endpoints
-	@Getter
-	@Setter
-	private ClientCredential purgeCredential;
-	@Getter
-	@Setter
-	private ClientCredential apiCredential;
-	@Getter
-	@Setter
-	private DefaultCredential netstorageCredential;
+	@Getter @Setter private ClientCredential purgeCredential;
+	@Getter @Setter private ClientCredential apiCredential;
+	@Getter @Setter private DefaultCredential netstorageCredential;
 
 	public OpenAPI() {
 		InputStream is = OpenAPI.class.getResourceAsStream("/openapi.properties");
