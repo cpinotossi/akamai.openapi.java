@@ -39,7 +39,7 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<finalName>opencli</finalName>
-					<outputDirectory>${basedir}/</outputDirectory>
+					<outputDirectory>${basedir}/../</outputDirectory>
 					<archive>
 						<manifest>
 							<mainClass>
@@ -62,11 +62,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-plugin</artifactId> 
-				<version>2.18.1</version> <configuration> <classpathDependencyExcludes> <classpathDependencyExcludes>ch.qos.logback:logback-classic</classpathDependencyExcludes> 
-				</classpathDependencyExcludes> <systemPropertyVariables> <org.slf4j.simpleLogger.defaultLogLevel>DEBUG</org.slf4j.simpleLogger.defaultLogLevel> 
-				<org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime> 
-				</systemPropertyVariables> </configuration> </plugin -->
 		</plugins>
 	</build>
 	<dependencies>
@@ -100,9 +95,6 @@
 			<artifactId>org.json</artifactId>
 			<version>20161124</version>
 		</dependency>
-
-		<!--dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-api</artifactId> 
-			<version>1.7.25</version> </dependency -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
@@ -145,8 +137,6 @@
 			<version>5.0.2</version>
 			<scope>test</scope>
 		</dependency>
-
-
 		<dependency>
 			<groupId>com.github.fge</groupId>
 			<artifactId>jackson-coreutils</artifactId>
@@ -178,49 +168,27 @@
 			<artifactId>ini4j</artifactId>
 			<version>0.5.4</version>
 		</dependency>
-		<!-- dependency> <groupId>org.seleniumhq.selenium</groupId> <artifactId>selenium-java</artifactId> 
-			<version>3.7.1</version> </dependency -->
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>selenium-jupiter</artifactId>
 			<version>1.2.0</version>
 			<scope>test</scope>
 		</dependency>
-
-		<!--dependency> <groupId>org.seleniumhq.selenium</groupId> <artifactId>selenium-htmlunit-driver</artifactId> 
-			<version>2.52.0</version> <scope>test</scope> </dependency -->
-
 		<dependency>
 			<groupId>com.akamai.edgegrid</groupId>
 			<artifactId>edgegrid-signer-core</artifactId>
 			<version>2.1.0</version>
 		</dependency>
-		
-		<!--dependency> <groupId>com.akamai.edgegrid</groupId> <artifactId>edgegrid-signer-google-http-client</artifactId> 
-			<version>2.1.1</version> </dependency -->
-
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.2</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>com.akamai.edgegrid</groupId>
 			<artifactId>edgegrid-signer-apache-http-client</artifactId>
 			<version>2.1.0</version>
 		</dependency>
- 
-
- 		
-			
-		<!--dependency> <groupId>org.apache.httpcomponents</groupId> <artifactId>fluent-hc</artifactId> 
-			<version>4.5.5</version> </dependency> <dependency> <groupId>org.apache.httpcomponents</groupId> 
-			<artifactId>httpclient-cache</artifactId> <version>4.5.5</version> </dependency> 
-			<dependency> <groupId>org.apache.httpcomponents</groupId> <artifactId>httpmime</artifactId> 
-			<version>4.5.5</version> </dependency -->
-		<!--dependency> <groupId>org.apache.httpcomponents</groupId> <artifactId>httpclient</artifactId> 
-			<version>4.5.3</version> <scope>test</scope> </dependency -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
