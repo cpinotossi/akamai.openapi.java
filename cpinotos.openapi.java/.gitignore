@@ -1,5 +1,4 @@
 /target/
-/bosch-si.prp
 /openapi.property
 /mozart40.mp3
 /docker-compose.yml
@@ -107,3 +106,6 @@ buildNumber.properties
 /lib/
 /maptiles/
 *.yml
+
+# Ignore Akamai credential files
+*edgerc
