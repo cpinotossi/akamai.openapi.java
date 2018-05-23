@@ -1,7 +1,17 @@
 # Akamai API Demo
 ## What will we show
-1. Easy use of the API to upload content to the OTA service.
-2. Easy way to use the OTA reporting.
+1. Easy use of the API to upload content to the Akamai OTA Update service.
+2. Easy way to use the Akamai OTA Update reporting.
+
+ NOTE: if you like to learn more about the Akamai OTA service have a look here: https://www.akamai.com/us/en/products/web-performance/over-the-air-updates.jsp
+
+## Architecture Overview:
+The Akamai OTA Updates solution used here consist of the following compontents:
+1. The Akamai OTA Update Configuration (Property Manager Configuration).
+2. Akamai Cloudstorage solution called Netstorage.
+3. Akamai API Clients to access the Akamai APIs.
+
+ NOTE: in case you are not an Akamai employee and you would like to use this Demo you will need to setup all the components mentioned here by yourself first.
 
 ## Requirements
 ### Installed software on your computer
@@ -11,7 +21,7 @@
 
 ### Get the java opencli client.
 The latest opencli jar can be found under the following github project https://github.com/cpinotossi/akamai.openapi.java
-You just need to download the opencli.jar from here:
+You just need to download the opencli.jar from here: https://github.com/cpinotossi/akamai.openapi.java/blob/master/opencli.jar
 
  NOTE: If you like to build the jar by yourself you can clone the project and run the Maven Build script which can be found under https://github.com/cpinotossi/akamai.openapi.java/blob/master/cpinotos.openapi.java/pom.xml
 
@@ -22,8 +32,13 @@ In case you are Akamai customer you should be able to get such a file via the Ak
 In case you are an Akamai employ you can download the file from here:
 https://drive.google.com/file/d/1Vp7oWDS1PmurDqDn_Nrgc5NDZdUSYwnm/view?usp=sharing
 
+In case this sounds all new to you have a look at our Akamai API get started documentation here:
+https://developer.akamai.com/introduction/
+
+
 ### Get the sample file
 During the whole Demo we will use an mp3 files which will be uploaded and downloaded from Akamai.
+
  NOTE: We use an mp3 file, this has the nice side effect that we can listen to nice music if everything goes fine ;).
 
 In case you are an Akamai employ you can find a nice demo mp3 file here:
@@ -31,23 +46,38 @@ https://drive.google.com/file/d/1asObCLw4_1z3Hsapx8dXaTMRGKM6NEYl/view?usp=shari
 
 ### Run from inside a docker instance
 If you cannot run Java8 from your machine you can use Docker instead.
+
 Under the github project https://github.com/cpinotossi/akamai.openapi.java you can find a Dockerfile.
+
 If you download the dockerfile and the opencli.jar file you can build an docker image as follow:
 
 1. Build the docker image with the Dockerfile
 ```
 $ docker build -t cpinotos/openapi-akamai:latest .
 ```
+NOTE: The dockerfile does expect to find the opencli under the same directory and will copy it into the docker image during the build:
+```
+WORKDIR /opencli
+COPY opencli.jar /opencli
+```
 
 2. Run the docker image as follow
 ```
 $ docker run -it --mount type=bind,source="$(pwd)",target=/opencli cpinotos/openapi-akamai
 ```
- NOTE: The opencli.jar which will be run from inside the docker container will need to have access to the .edgerc file. To achieve this we use the mount command to map our current folder into the docker workdirectory.
+ NOTE: The opencli.jar which will be run from inside the docker container will need to have access to the .edgerc file. To achieve this we use the mount command to map our current folder into the docker workdirectory (workdirectory name = "opencli").
 
-3. List your workdirectory:
+3. Show Docker workdirectory:
+After the Docker container is running you will be located under your working directory:
 ```
-~/w/akamai.openapi.java ❯❯❯ docker run -it --mount type=bind,source="$(pwd)",target=/opencli cpinotos/openapi-akamai
+[root@0ab2877a9193 opencli]# pwd
+/opencli
+```
+
+4. List your workdirectory:
+If the mount command did work correctly you should be able to see your current local directory inside the docker container:
+```
+$ docker run -it --mount type=bind,source="$(pwd)",target=/opencli cpinotos/openapi-akamai
 [root@0ab2877a9193 opencli]# ls -la
 total 13040
 drwxr-xr-x 12 root root      408 May 22 17:13 .
@@ -63,14 +93,14 @@ drwxr-xr-x 15 root root      510 May 22 17:25 .git
 drwxr-xr-x  2 root root       68 May 22 14:47 property-manager-catalog
 -rw-r--r--  1 root root    14314 May 22 17:33 README.md
 ```
- NOTE: The file .edgerc is now avaiable from inside the Docker container because of the mapping.
+ NOTE: The file .edgerc is now available from inside the Docker container because of the mapping parameter used with the docker run command.
 
-4. Call the opencli help command:
+5. Call the opencli help command:
 ```
 [root@31cf2fcc3587 opencli]# java -jar opencli.jar -h
 ```
 
-5. List a directory on the Akamai Netstorage via the opencli.jar:
+6. List a directory on the Akamai Netstorage via the opencli.jar:
 ```
 [root@31cf2fcc3587 opencli]# java -jar opencli.jar -h ota.edgegate.de --edgerc /opencli/.edgerc dir -o /updates/cpinotos
 {
@@ -106,12 +136,12 @@ drwxr-xr-x  2 root root       68 May 22 14:47 property-manager-catalog
 ### Call the java opencli client the first time
 After downloading the opencli.jar open a shell and go to the directory under which you downloaded the opencli.jar and execute the following command:
 ```
-java -jar opencli.jar
+$ java -jar opencli.jar
 try '--help' or '-h' for more information
 ```
 Call the help function:
 ~~~~
-java -jar opencli.jar -h                                                                              ⏎
+$ java -jar opencli.jar -h                                                                              ⏎
 Expected a value after parameter -h
 Usage: <main class> [options] [command] [command options]
   Options:
@@ -137,7 +167,7 @@ You should see more output but for now we just need to focus on making sure to p
 
 All your request should look as follow in case the .edgerc file is stored on your home directory under a Mac:
 ~~~~
-java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc <command> <parameters>
+$ java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc <command> <parameters>
 ~~~~
 # Demo step by step
 ## Upload file to netstorage
@@ -164,7 +194,7 @@ That´s what we did here by adding "/cpinotos" to ensure not to run into conflic
 
 ### API call to upload to NetStorage
 ```
-java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc upload -i mozart40.mp3 -o /updates/cpinotos/model_1/mozart_20180302.mp3
+ opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc upload -i mozart40.mp3 -o /updates/cpinotos/model_1/mozart_20180302.mp3
 Local File (in):mozart40.mp3
 Netstorage Location (out):/599907/updates/cpinotos/model_1/mozart_20180302.mp3
 done
@@ -173,7 +203,7 @@ IMPORTANT
 
 ## Verify if file has been uploaded to netstorage
 ```
-java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc dir -o /updates/cpinotos/model_1
+$ java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc dir -o /updates/cpinotos/model_1
 {
   "file": [
     {
@@ -233,7 +263,7 @@ We received an 403. In additon we received the X-Reference-Error code inside the
 IMPORTANT: The following call can take a while (~5 min).
 
 ```
-java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc translate_error -e 18.c6f21502.1519994463.134904ed
+$ java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc translate_error -e 18.c6f21502.1519994463.134904ed
 {
   "translatedError": {
     "url": "http\u0026#x3a;\u0026#x2f;\u0026#x2f;ota.edgegate.de\u0026#x2f;updates\u0026#x2f;cpinotos\u0026#x2f;model_1\u0026#x2f;mozart_20180302.mp3",
@@ -319,7 +349,7 @@ This parameter tell more about where the issue did take place and could become h
 ## Generate EdgeAuth Token
 IMPORTANT: The following call can take a while (~2 min).
 ```
-java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc edgeauth -i /updates/cpinotos/model_1/mozart_20180302.mp3
+$ java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc edgeauth -i /updates/cpinotos/model_1/mozart_20180302.mp3
 Start edgeurl:
 edgeURL:step1/7: found Property Configuration for Hostname ota.edgegate.de
 edgeURL:step2/7: found Property Configuration ota.edgegate.de  version 46
@@ -385,7 +415,7 @@ for i in {1..10}; do eval "curl -o /dev/null -v -k -A'device' 'https://ota.edgeg
 ### Request OTA Report
 request a simple list of all OTA request of the last 24 hours for CPCode 599907:
 ```
- java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc ota -c 599907 -f list
+ $ java -jar opencli.jar -h ota.edgegate.de --edgerc /Users/cpinotos/.edgerc ota -c 599907 -f list
 UID	Download-Time	URL
 2	Fri Mar 02 13:46:03 CET 2018	http(s)://ota.edgegate.de/updates/cpinotos/model_1/mozart_20180302.mp3
 1	Fri Mar 02 13:46:03 CET 2018	http(s)://ota.edgegate.de/updates/cpinotos/model_1/mozart_20180302.mp3
