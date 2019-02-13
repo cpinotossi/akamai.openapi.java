@@ -39,7 +39,7 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<finalName>opencli</finalName>
-					<outputDirectory>${basedir}/../</outputDirectory>
+					<outputDirectory>${basedir}/</outputDirectory>
 					<archive>
 						<manifest>
 							<mainClass>
